@@ -87,22 +87,6 @@
       box-shadow: 0 0 0 4px rgba(42, 157, 143, 0.25);
     }
 
-    .header-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 7px;
-      text-decoration: none;
-      font-size: 0.9rem;
-      font-weight: 600;
-      color: #fff;
-      background: rgba(255, 255, 255, 0.1);
-      border: 1px solid rgba(255, 255, 255, 0.25);
-      padding: 9px 16px;
-      border-radius: 9px;
-      transition: background 0.15s ease;
-    }
-    .header-link:hover { background: rgba(255, 255, 255, 0.2); }
-
     header h1 {
       margin: 0;
       font-size: 2rem;
@@ -127,10 +111,44 @@
 
     .toolbar {
       display: flex;
-      justify-content: flex-end;
+      align-items: center;
+      justify-content: space-between;
       gap: 12px;
       flex-wrap: wrap;
       margin-bottom: 28px;
+    }
+    .toolbar-right {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+
+    /* Tautan menu, misalnya Cek Hasil */
+    .btn-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 11px 18px;
+      border-radius: 10px;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .btn-link::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--teal);
+    }
+    .btn-link:hover {
+      background: var(--teal-soft);
+      border-color: rgba(42, 157, 143, 0.4);
     }
 
     .btn-example {
@@ -531,56 +549,6 @@
 
     .score-grow { flex: 1; min-width: 200px; }
 
-    /* Panel setoran ke dashboard */
-    .setor-panel {
-      margin-top: 28px;
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      padding: 22px 24px;
-    }
-    .setor-panel[hidden] { display: none; }
-    .setor-panel h3 {
-      margin: 0 0 6px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--navy);
-    }
-    .setor-panel .setor-info {
-      margin: 0 0 14px;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-    .setor-field {
-      display: flex;
-      gap: 10px;
-      align-items: stretch;
-      flex-wrap: wrap;
-      margin-bottom: 12px;
-    }
-    .setor-field input {
-      flex: 1;
-      min-width: 240px;
-      font-family: inherit;
-      font-size: 0.88rem;
-      color: var(--text);
-      padding: 11px 13px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #fcfdfe;
-    }
-    .setor-field input:focus {
-      outline: none;
-      border-color: var(--teal);
-      box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15);
-    }
-    .setor-actions {
-      display: flex;
-      gap: 10px;
-      flex-wrap: wrap;
-    }
-
     /* Responsive */
     @media (max-width: 1080px) {
       .canvas { grid-template-columns: repeat(2, 1fr); }
@@ -591,8 +559,9 @@
       header h1 { font-size: 1.6rem; }
       main { padding: 24px 18px 48px; }
       .canvas { grid-template-columns: 1fr; }
-      .toolbar { justify-content: stretch; }
-      .btn-example { width: 100%; }
+      .toolbar { flex-direction: column; align-items: stretch; }
+      .toolbar-right { flex-direction: column; }
+      .btn-link, .btn-example, .btn-secondary, .btn-primary { width: 100%; justify-content: center; text-align: center; }
     }
   </style>
 </head>
@@ -601,7 +570,6 @@
     <div class="header-inner">
       <div class="header-top">
         <span class="header-kicker">Workshop Inovasi Proses Bisnis</span>
-        <a class="header-link" href="dashboard.html">Dashboard Monitoring</a>
       </div>
       <h1>Kanvas Inovasi Probis</h1>
       <p>Rancang ide inovasi Anda, satu blok demi satu blok</p>
@@ -610,10 +578,12 @@
 
   <main>
     <div class="toolbar">
-      <button type="button" class="btn-example" id="exampleBtn">Lihat Contoh: Papan Tim Kerja</button>
-      <button type="button" class="btn-secondary" id="downloadBtn">Unduh</button>
-      <button type="button" class="btn-secondary" id="setorBtn">Setor ke Dashboard</button>
-      <button type="button" class="btn-primary" id="assembleBtn">Rangkai Prompt</button>
+      <a class="btn-link" href="dashboard.html">Cek Hasil</a>
+      <div class="toolbar-right">
+        <button type="button" class="btn-example" id="exampleBtn">Lihat Contoh: Papan Tim Kerja</button>
+        <button type="button" class="btn-secondary" id="downloadBtn">Unduh</button>
+        <button type="button" class="btn-primary" id="assembleBtn">Rangkai Prompt</button>
+      </div>
     </div>
 
     <div class="identity">
@@ -733,18 +703,6 @@
       <textarea class="prompt-output" id="promptOutput" readonly></textarea>
     </div>
 
-    <div class="setor-panel" id="setorPanel" hidden>
-      <h3>Setoran ke Dashboard</h3>
-      <p class="setor-info">Salin tautan setoran di bawah, lalu kirimkan ke fasilitator melalui chat atau email. Fasilitator cukup membukanya untuk memantau kanvas Anda. Bila lebih praktis, salin kodenya saja.</p>
-      <div class="setor-field">
-        <input type="text" id="setorLink" readonly />
-        <button type="button" class="btn-primary" id="copyLinkBtn">Salin Tautan Setoran</button>
-      </div>
-      <div class="setor-field">
-        <input type="text" id="setorCode" readonly />
-        <button type="button" class="btn-secondary" id="copyCodeBtn">Salin Kode</button>
-      </div>
-    </div>
   </main>
 
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
@@ -783,13 +741,8 @@
       var toast = document.getElementById("toast");
 
       var namaInput = document.getElementById("namaInput");
-      var setorBtn = document.getElementById("setorBtn");
-      var setorPanel = document.getElementById("setorPanel");
-      var setorLink = document.getElementById("setorLink");
-      var setorCode = document.getElementById("setorCode");
-      var copyLinkBtn = document.getElementById("copyLinkBtn");
-      var copyCodeBtn = document.getElementById("copyCodeBtn");
       var phaseChips = document.querySelectorAll(".phase-chip");
+      var DASH_KEY = "kanvasDashboard";   // daftar setoran yang dibaca halaman Cek Hasil
 
       // Daftar blok berurutan: kunci, label, dan fase
       var BLOK = [
@@ -888,12 +841,24 @@
         });
       }
 
-      // Encode dan decode teks UTF-8 ke base64 dengan aman
-      function encodeB64(str) {
-        var bytes = new TextEncoder().encode(str);
-        var bin = "";
-        for (var i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-        return btoa(bin);
+      // Daftarkan kanvas ke halaman Cek Hasil (browser yang sama)
+      function setorKeDashboard(nama) {
+        var blok = {};
+        areas.forEach(function (a) { blok[a.getAttribute("data-key")] = a.value.trim(); });
+        var entri = { nama: nama, ts: Date.now(), blok: blok };
+        var daftar = [];
+        try {
+          var raw = localStorage.getItem(DASH_KEY);
+          if (raw) daftar = JSON.parse(raw) || [];
+        } catch (e) { daftar = []; }
+        var kunci = nama.toLowerCase();
+        var pos = -1;
+        for (var i = 0; i < daftar.length; i++) {
+          if ((daftar[i].nama || "").trim().toLowerCase() === kunci) { pos = i; break; }
+        }
+        if (pos === -1) daftar.push(entri);
+        else daftar[pos] = entri;
+        try { localStorage.setItem(DASH_KEY, JSON.stringify(daftar)); } catch (e) {}
       }
 
       // Susun prompt siap tempel ke Claude
@@ -1001,7 +966,6 @@
         btn.classList.remove("is-clear");
         terisi = false;
         promptPanel.setAttribute("hidden", "");
-        setorPanel.setAttribute("hidden", "");
         perbarui();
         simpan();
       }
@@ -1021,6 +985,14 @@
       });
 
       downloadBtn.addEventListener("click", function () {
+        var nama = namaInput.value.trim();
+        if (nama === "") {
+          tampilToast("Isi nama peserta dulu");
+          namaInput.focus();
+          return;
+        }
+        // Daftarkan ke halaman Cek Hasil sekaligus unduh salinan teks
+        setorKeDashboard(nama);
         var blob = new Blob([rangkaiTeks()], { type: "text/plain;charset=utf-8" });
         var url = URL.createObjectURL(blob);
         var a = document.createElement("a");
@@ -1030,29 +1002,9 @@
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
+        tampilToast("Tersimpan ke Cek Hasil dan terunduh");
       });
 
-      // Hasilkan setoran berisi kode dan tautan ke dashboard
-      function buatSetoran() {
-        var nama = namaInput.value.trim();
-        if (nama === "") {
-          tampilToast("Isi nama dulu");
-          namaInput.focus();
-          return;
-        }
-        var blok = {};
-        areas.forEach(function (a) { blok[a.getAttribute("data-key")] = a.value.trim(); });
-        var payload = { v: 1, nama: nama, ts: Date.now(), blok: blok };
-        var kode = encodeB64(JSON.stringify(payload));
-        setorCode.value = kode;
-        setorLink.value = new URL("dashboard.html", location.href).href + "#data=" + encodeURIComponent(kode);
-        setorPanel.removeAttribute("hidden");
-        setorPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
-      }
-
-      setorBtn.addEventListener("click", buatSetoran);
-      copyLinkBtn.addEventListener("click", function () { salinKlip(setorLink.value); });
-      copyCodeBtn.addEventListener("click", function () { salinKlip(setorCode.value); });
       namaInput.addEventListener("input", simpan);
 
       areas.forEach(function (a) {

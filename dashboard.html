@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dashboard Monitoring - Kanvas Inovasi Probis</title>
+  <title>Cek Hasil - Kanvas Inovasi Probis</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -137,45 +137,6 @@
     .btn-secondary { border: 1px solid var(--border); background: #fff; color: var(--navy); }
     .btn-secondary:hover { background: #f0f3f7; }
     .btn-secondary:active { transform: translateY(1px); }
-
-    /* Kartu masukan setoran */
-    .input-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      box-shadow: var(--shadow);
-      padding: 22px 24px;
-      margin-bottom: 24px;
-    }
-    .input-card h2 {
-      margin: 0 0 6px;
-      font-size: 1.1rem;
-      font-weight: 700;
-      color: var(--navy);
-    }
-    .input-card p {
-      margin: 0 0 14px;
-      font-size: 0.9rem;
-      color: var(--muted);
-    }
-    .input-card textarea {
-      width: 100%;
-      min-height: 90px;
-      resize: vertical;
-      font-family: inherit;
-      font-size: 0.9rem;
-      color: var(--text);
-      padding: 12px 14px;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      background: #fcfdfe;
-      margin-bottom: 12px;
-    }
-    .input-card textarea:focus {
-      outline: none;
-      border-color: var(--teal);
-      box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15);
-    }
 
     /* Ringkasan statistik */
     .stats {
@@ -430,19 +391,12 @@
         <span class="header-kicker">Workshop Inovasi Proses Bisnis</span>
         <a class="header-link" href="index.html">Buka Kanvas</a>
       </div>
-      <h1>Dashboard Monitoring</h1>
-      <p>Pantau kesiapan kanvas inovasi setiap peserta dalam satu tampilan</p>
+      <h1>Cek Hasil</h1>
+      <p>Rekap kesiapan kanvas inovasi peserta dalam satu tampilan</p>
     </div>
   </header>
 
   <main>
-    <div class="input-card">
-      <h2>Tambahkan setoran peserta</h2>
-      <p>Tempel satu atau beberapa tautan atau kode setoran dari peserta, satu per baris. Bila Anda membuka tautan setoran langsung, datanya otomatis masuk ke daftar.</p>
-      <textarea id="inputArea" placeholder="Tempel tautan atau kode setoran di sini, satu per baris"></textarea>
-      <button type="button" class="btn-primary" id="addBtn">Tambahkan Setoran</button>
-    </div>
-
     <div class="stats">
       <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Peserta</div></div>
       <div class="stat"><div class="stat-val" id="statAvg">0%</div><div class="stat-lbl">Rata-rata kesiapan</div></div>
@@ -492,8 +446,6 @@
         { key: "indikator", label: "Indikator keberhasilan", fase: "UJI DAN DAFTARKAN" }
       ];
 
-      var inputArea = document.getElementById("inputArea");
-      var addBtn = document.getElementById("addBtn");
       var csvBtn = document.getElementById("csvBtn");
       var clearBtn = document.getElementById("clearBtn");
       var pesertaList = document.getElementById("pesertaList");
@@ -652,7 +604,7 @@
         if (total === 0) {
           var kosong = document.createElement("div");
           kosong.className = "empty";
-          kosong.innerHTML = "<strong>Belum ada setoran</strong>Minta peserta menekan tombol Setor ke Dashboard di halaman kanvas, lalu tempel tautan atau kodenya di atas.";
+          kosong.innerHTML = "<strong>Belum ada hasil</strong>Isi kanvas lalu tekan tombol Unduh di halaman kanvas pada browser ini. Hasilnya otomatis muncul di sini.";
           pesertaList.appendChild(kosong);
           return;
         }
@@ -752,20 +704,6 @@
         return card;
       }
 
-      function tambahDariTeks(teks) {
-        var baris = teks.split(/\r?\n/);
-        var sukses = 0, gagal = 0;
-        baris.forEach(function (b) {
-          var kode = ambilKode(b);
-          if (kode === null) return;
-          if (tambahKode(kode)) sukses++; else gagal++;
-        });
-        if (sukses > 0) { simpan(); render(); }
-        if (sukses > 0 && gagal === 0) tampilToast(sukses + " setoran ditambahkan");
-        else if (sukses > 0 && gagal > 0) tampilToast(sukses + " ditambahkan, " + gagal + " gagal dibaca");
-        else if (sukses === 0 && (gagal > 0 || teks.trim() !== "")) tampilToast("Kode tidak terbaca");
-      }
-
       // Unduh CSV
       function csvEscape(v) {
         v = (v == null ? "" : String(v)).replace(/\r?\n/g, " ");
@@ -809,10 +747,6 @@
         history.replaceState(null, "", location.pathname + location.search);
       }
 
-      addBtn.addEventListener("click", function () {
-        tambahDariTeks(inputArea.value);
-        inputArea.value = "";
-      });
       csvBtn.addEventListener("click", unduhCsv);
       clearBtn.addEventListener("click", function () {
         if (daftar.length === 0) { tampilToast("Daftar masih kosong"); return; }
@@ -821,6 +755,11 @@
         simpan();
         render();
         tampilToast("Daftar dikosongkan");
+      });
+
+      // Segarkan otomatis bila ada setoran baru dari tab lain di browser yang sama
+      window.addEventListener("storage", function (e) {
+        if (e.key === STORAGE_KEY) { muat(); render(); }
       });
 
       muat();
