@@ -637,7 +637,7 @@
     </div>
 
     <div class="intro">
-      <strong>Cara pakai.</strong> Isi nama Anda, lalu lengkapi kesembilan blok dari kiri ke kanan. Skor kesiapan terhitung otomatis. Setelah cukup, tekan Kirim &amp; Unduh untuk menyimpan salinan dan mengirim ke fasilitator. Pekerjaan Anda tersimpan otomatis di perangkat ini.
+      <strong>Cara pakai.</strong> Isi nama Anda, lalu lengkapi kesebelas blok dari kiri ke kanan. Skor kelengkapan terhitung otomatis. Setelah cukup, tekan Kirim &amp; Unduh untuk menyimpan salinan dan mengirim ke fasilitator. Pekerjaan Anda tersimpan otomatis di perangkat ini.
     </div>
 
     <div class="toolbar">
@@ -662,7 +662,7 @@
       </div>
       <div class="score-meta score-grow">
         <div class="score-label" id="scoreLabel">Baru mulai</div>
-        <div class="score-sub"><span id="blokCount">0 dari 9 blok terisi</span> &middot; tersimpan otomatis di perangkat ini</div>
+        <div class="score-sub"><span id="blokCount">0 dari 11 blok terisi</span> &middot; tersimpan otomatis di perangkat ini</div>
         <div class="phase-progress" id="phaseProgress">
           <span class="phase-chip" data-fase="PAHAMI"><span class="dot"></span>Pahami</span>
           <span class="phase-chip" data-fase="DEFINISIKAN"><span class="dot"></span>Definisikan</span>
@@ -683,12 +683,17 @@
         <div class="card">
           <label for="f1a">Proses yang dipilih</label>
           <p class="guide">Proses kerja apa yang ingin Anda perbaiki?</p>
-          <textarea id="f1a" data-key="proses"></textarea>
+          <textarea id="f1a" data-key="proses" placeholder="Contoh: proses persetujuan, pelaporan, atau distribusi tugas yang sering tersendat"></textarea>
         </div>
         <div class="card">
           <label for="f1b">Pengguna dan kebutuhannya</label>
           <p class="guide">Siapa yang memakai proses ini dan apa yang mereka butuhkan?</p>
-          <textarea id="f1b" data-key="pengguna"></textarea>
+          <textarea id="f1b" data-key="pengguna" placeholder="Sebutkan siapa yang terlibat dan apa yang paling mereka butuhkan"></textarea>
+        </div>
+        <div class="card">
+          <label for="f1c">Kewenangan dan batas</label>
+          <p class="guide">Sejauh mana proses ini bisa Anda ubah, dan aturan apa yang membatasinya?</p>
+          <textarea id="f1c" data-key="kewenangan" placeholder="Apa yang boleh diubah di tingkat Anda, dan aturan atau pihak yang mengikat"></textarea>
         </div>
       </div>
     </section>
@@ -703,12 +708,12 @@
         <div class="card">
           <label for="f2a">Titik nyeri</label>
           <p class="guide">Di mana proses ini terasa paling menyakitkan atau lambat?</p>
-          <textarea id="f2a" data-key="nyeri"></textarea>
+          <textarea id="f2a" data-key="nyeri" placeholder="Bagian yang lambat, berulang, atau membuat frustrasi"></textarea>
         </div>
         <div class="card">
           <label for="f2b">Akar masalah</label>
-          <p class="guide">Apa penyebab mendasar di balik titik nyeri itu?</p>
-          <textarea id="f2b" data-key="akar"></textarea>
+          <p class="guide">Apa penyebab mendasar di balik titik nyeri itu? Tanyakan mengapa beberapa kali.</p>
+          <textarea id="f2b" data-key="akar" placeholder="Telusuri sebab di balik gejala, bukan gejalanya saja"></textarea>
         </div>
       </div>
     </section>
@@ -724,12 +729,17 @@
           <span class="badge">Blok Utama</span>
           <label for="f3a">Ide desain ulang</label>
           <p class="guide">Bagaimana proses ini bisa dirancang ulang?</p>
-          <textarea id="f3a" data-key="ide"></textarea>
+          <textarea id="f3a" data-key="ide" placeholder="Gambarkan alur baru proses ini bila dirancang ulang"></textarea>
         </div>
         <div class="card">
-          <label for="f3b">Nilai tambah</label>
-          <p class="guide">Apa manfaat nyata yang dihasilkan?</p>
-          <textarea id="f3b" data-key="nilai"></textarea>
+          <label for="f3b">Nilai publik</label>
+          <p class="guide">Apa manfaat nyata bagi pengguna dan organisasi, termasuk dari sisi kepatuhan?</p>
+          <textarea id="f3b" data-key="nilai" placeholder="Lebih cepat, lebih akurat, lebih patuh, atau lebih adil bagi pengguna"></textarea>
+        </div>
+        <div class="card">
+          <label for="f3c">Pengaman dan integritas</label>
+          <p class="guide">Apa yang bisa disalahgunakan, dan bagaimana ide ini tetap mendukung, bukan menggantikan, persetujuan yang sah?</p>
+          <textarea id="f3c" data-key="pengaman" placeholder="Risiko penyalahgunaan dan cara mencegahnya, serta peran persetujuan yang tetap dijaga"></textarea>
         </div>
       </div>
     </section>
@@ -744,17 +754,17 @@
         <div class="card">
           <label for="f4a">Sumber daya dan mitra</label>
           <p class="guide">Siapa dan apa yang dibutuhkan untuk mewujudkannya?</p>
-          <textarea id="f4a" data-key="sumberdaya"></textarea>
+          <textarea id="f4a" data-key="sumberdaya" placeholder="Orang, data, sistem, dan mitra yang diperlukan"></textarea>
         </div>
         <div class="card">
           <label for="f4b">Uji coba cepat</label>
           <p class="guide">Bagaimana cara menguji ide ini dalam skala kecil?</p>
-          <textarea id="f4b" data-key="uji"></textarea>
+          <textarea id="f4b" data-key="uji" placeholder="Lingkup kecil: satu unit, satu periode, mulai dari yang sudah ada"></textarea>
         </div>
         <div class="card">
           <label for="f4c">Indikator keberhasilan</label>
-          <p class="guide">Dari mana Anda tahu ide ini berhasil?</p>
-          <textarea id="f4c" data-key="indikator"></textarea>
+          <p class="guide">Dari angka apa Anda tahu ini berhasil, sebelum dan sesudah?</p>
+          <textarea id="f4c" data-key="indikator" placeholder="Contoh: waktu proses turun dari X menjadi Y, atau keluhan berkurang sekian persen"></textarea>
         </div>
       </div>
     </section>
@@ -785,10 +795,12 @@
       var contoh = {
         proses: "Distribusi dan pemantauan beban kerja Tim Kerja pasca-KEP-5.",
         pengguna: "Ketua tim dan pimpinan unit, butuh melihat siapa mengerjakan apa dan siapa yang kelebihan beban.",
+        kewenangan: "Distribusi tugas ada dalam kewenangan ketua tim dan pimpinan unit, sepanjang tetap dalam koridor KEP-5 tentang batas dan pemerataan beban.",
         nyeri: "Penugasan menumpuk di orang yang sama, sebagian pegawai menganggur, ketua tim sulit memantau, rawan melewati batas penugasan maksimal.",
         akar: "Distribusi tugas dilakukan manual lewat percakapan, tidak ada gambaran beban yang menyeluruh.",
         ide: "Papan tugas digital yang menampilkan penugasan tiap anggota dan menandai siapa yang melewati batas penugasan maksimal.",
         nilai: "Beban kerja lebih merata, memenuhi aturan KEP-5 tentang pemerataan beban, dan transparan bagi semua anggota.",
+        pengaman: "Papan hanya membantu memantau dan menyarankan, keputusan penugasan tetap di tangan ketua tim, sehingga tidak menggeser kewenangan dan akuntabilitas.",
         sumberdaya: "Subunit Pengelola Program di unit, serta data rencana kerja Tim Kerja.",
         uji: "Satu Kanwil, satu periode triwulan, mulai dari tim yang sudah ada.",
         indikator: "Ketimpangan beban menurun, tidak ada anggota yang melewati batas maksimal, ketua tim lebih hemat waktu memantau."
@@ -824,10 +836,12 @@
       var BLOK = [
         { key: "proses", label: "Proses yang dipilih", fase: "PAHAMI" },
         { key: "pengguna", label: "Pengguna dan kebutuhannya", fase: "PAHAMI" },
+        { key: "kewenangan", label: "Kewenangan dan batas", fase: "PAHAMI" },
         { key: "nyeri", label: "Titik nyeri", fase: "DEFINISIKAN" },
         { key: "akar", label: "Akar masalah", fase: "DEFINISIKAN" },
         { key: "ide", label: "Ide desain ulang", fase: "RANCANG" },
-        { key: "nilai", label: "Nilai tambah", fase: "RANCANG" },
+        { key: "nilai", label: "Nilai publik", fase: "RANCANG" },
+        { key: "pengaman", label: "Pengaman dan integritas", fase: "RANCANG" },
         { key: "sumberdaya", label: "Sumber daya dan mitra", fase: "UJI DAN DAFTARKAN" },
         { key: "uji", label: "Uji coba cepat", fase: "UJI DAN DAFTARKAN" },
         { key: "indikator", label: "Indikator keberhasilan", fase: "UJI DAN DAFTARKAN" }
@@ -901,7 +915,7 @@
           setBadge(badges[key], panjang);
         });
 
-        blokCount.textContent = terisiN + " dari 9 blok terisi";
+        blokCount.textContent = terisiN + " dari " + areas.length + " blok terisi";
 
         var pct = maksimal === 0 ? 0 : Math.round((didapat / maksimal) * 100);
         var t = tingkat(pct);
@@ -957,16 +971,18 @@
       // Susun prompt siap tempel ke Claude
       function rangkaiPrompt() {
         var p = "";
-        p += "Saya sedang merancang ide inovasi untuk memperbaiki proses kerja. Berikut rancangan saya dalam sembilan dimensi:\n\n";
+        p += "Saya sedang merancang ide inovasi untuk memperbaiki proses kerja. Berikut rancangan saya dalam sebelas dimensi:\n\n";
         p += "PAHAMI\n";
         p += "- Proses yang dipilih: " + isiBlok("proses") + "\n";
-        p += "- Pengguna dan kebutuhannya: " + isiBlok("pengguna") + "\n\n";
+        p += "- Pengguna dan kebutuhannya: " + isiBlok("pengguna") + "\n";
+        p += "- Kewenangan dan batas: " + isiBlok("kewenangan") + "\n\n";
         p += "DEFINISIKAN\n";
         p += "- Titik nyeri: " + isiBlok("nyeri") + "\n";
         p += "- Akar masalah: " + isiBlok("akar") + "\n\n";
         p += "RANCANG\n";
         p += "- Ide desain ulang: " + isiBlok("ide") + "\n";
-        p += "- Nilai tambah: " + isiBlok("nilai") + "\n\n";
+        p += "- Nilai publik: " + isiBlok("nilai") + "\n";
+        p += "- Pengaman dan integritas: " + isiBlok("pengaman") + "\n\n";
         p += "UJI DAN DAFTARKAN\n";
         p += "- Sumber daya dan mitra: " + isiBlok("sumberdaya") + "\n";
         p += "- Uji coba cepat: " + isiBlok("uji") + "\n";

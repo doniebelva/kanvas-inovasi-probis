@@ -452,13 +452,13 @@
 
     <div class="stats">
       <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Peserta</div></div>
-      <div class="stat"><div class="stat-val" id="statAvg">0%</div><div class="stat-lbl">Rata-rata kesiapan</div></div>
+      <div class="stat"><div class="stat-val" id="statAvg">0%</div><div class="stat-lbl">Rata-rata kelengkapan</div></div>
       <div class="stat"><div class="stat-val" id="statSiap">0</div><div class="stat-lbl">Siap dirangkai</div></div>
       <div class="stat"><div class="stat-val" id="statPerhatian">0</div><div class="stat-lbl">Perlu perhatian</div></div>
     </div>
 
     <div class="dist-card">
-      <div class="dist-title">Sebaran tingkat kesiapan</div>
+      <div class="dist-title">Sebaran tingkat kelengkapan</div>
       <div class="dist-bar" id="distBar"></div>
       <div class="dist-legend">
         <span><i style="background:var(--c-baru)"></i>Baru mulai</span>
@@ -531,10 +531,12 @@
       var BLOK = [
         { key: "proses", label: "Proses yang dipilih", fase: "PAHAMI" },
         { key: "pengguna", label: "Pengguna dan kebutuhannya", fase: "PAHAMI" },
+        { key: "kewenangan", label: "Kewenangan dan batas", fase: "PAHAMI" },
         { key: "nyeri", label: "Titik nyeri", fase: "DEFINISIKAN" },
         { key: "akar", label: "Akar masalah", fase: "DEFINISIKAN" },
         { key: "ide", label: "Ide desain ulang", fase: "RANCANG" },
-        { key: "nilai", label: "Nilai tambah", fase: "RANCANG" },
+        { key: "nilai", label: "Nilai publik", fase: "RANCANG" },
+        { key: "pengaman", label: "Pengaman dan integritas", fase: "RANCANG" },
         { key: "sumberdaya", label: "Sumber daya dan mitra", fase: "UJI DAN DAFTARKAN" },
         { key: "uji", label: "Uji coba cepat", fase: "UJI DAN DAFTARKAN" },
         { key: "indikator", label: "Indikator keberhasilan", fase: "UJI DAN DAFTARKAN" }
@@ -760,7 +762,7 @@
         nama.textContent = d.nama;
         var sub = document.createElement("div");
         sub.className = "peserta-sub";
-        sub.innerHTML = "<span>" + row.terisi + "/9 blok terisi</span><span>Disetor " + waktuTeks(d.ts) + "</span>";
+        sub.innerHTML = "<span>" + row.terisi + "/" + BLOK.length + " blok terisi</span><span>Disetor " + waktuTeks(d.ts) + "</span>";
         info.appendChild(nama);
         info.appendChild(sub);
 
@@ -849,7 +851,7 @@
 
         peserta.forEach(function (d) {
           var pct = hitungSkor(d.blok);
-          var row = [d.nama, waktuTeks(d.ts), pct, tingkat(pct).label, jumlahTerisi(d.blok) + "/9"];
+          var row = [d.nama, waktuTeks(d.ts), pct, tingkat(pct).label, jumlahTerisi(d.blok) + "/" + BLOK.length];
           BLOK.forEach(function (b) { row.push((d.blok[b.key] || "").trim()); });
           baris.push(row.map(csvEscape).join(","));
         });

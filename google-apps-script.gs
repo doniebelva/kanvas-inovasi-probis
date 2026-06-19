@@ -33,13 +33,14 @@ var NAMA_SHEET = 'Data';
 
 var KOLOM = [
   'Waktu', 'Nama', 'Proses yang dipilih', 'Pengguna dan kebutuhannya',
-  'Titik nyeri', 'Akar masalah', 'Ide desain ulang', 'Nilai tambah',
-  'Sumber daya dan mitra', 'Uji coba cepat', 'Indikator keberhasilan'
+  'Kewenangan dan batas', 'Titik nyeri', 'Akar masalah', 'Ide desain ulang',
+  'Nilai publik', 'Pengaman dan integritas', 'Sumber daya dan mitra',
+  'Uji coba cepat', 'Indikator keberhasilan'
 ];
 
 var URUTAN_BLOK = [
-  'proses', 'pengguna', 'nyeri', 'akar', 'ide',
-  'nilai', 'sumberdaya', 'uji', 'indikator'
+  'proses', 'pengguna', 'kewenangan', 'nyeri', 'akar', 'ide',
+  'nilai', 'pengaman', 'sumberdaya', 'uji', 'indikator'
 ];
 
 function ambilSheet() {
