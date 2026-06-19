@@ -53,7 +53,8 @@ function ambilSheet() {
   return sheet;
 }
 
-// Tulis atau perbarui satu setoran, dikunci agar aman saat banyak peserta
+// Tulis satu setoran sebagai baris BARU. Setiap pengiriman menambah baris,
+// tidak menimpa yang lama. Dikunci agar aman saat banyak peserta bersamaan.
 function handleWrite(data) {
   var lock = LockService.getScriptLock();
   lock.waitLock(20000);
@@ -69,18 +70,7 @@ function handleWrite(data) {
       baris.push(String(blok[URUTAN_BLOK[i]] || ''));
     }
 
-    // Cari nama yang sama agar setoran terbaru menimpa yang lama
-    var nilai = sheet.getDataRange().getValues();
-    var temu = -1;
-    for (var r = 1; r < nilai.length; r++) {
-      if (String(nilai[r][1]).trim().toLowerCase() === nama.toLowerCase()) {
-        temu = r + 1;
-        break;
-      }
-    }
-    if (temu > 0) sheet.getRange(temu, 1, 1, baris.length).setValues([baris]);
-    else sheet.appendRow(baris);
-
+    sheet.appendRow(baris);
     return { ok: true };
   } catch (err) {
     return { ok: false, error: String(err) };
