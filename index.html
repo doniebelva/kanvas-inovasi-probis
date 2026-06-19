@@ -1,0 +1,793 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Kanvas Inovasi Probis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #14304F;
+      --teal: #2A9D8F;
+      --teal-soft: #e6f4f1;
+      --bg: #F7F9FB;
+      --card: #ffffff;
+      --text: #1f2d3d;
+      --muted: #5a6b7b;
+      --border: #e3e8ee;
+      --shadow: 0 1px 3px rgba(20, 48, 79, 0.06), 0 6px 20px rgba(20, 48, 79, 0.06);
+    }
+
+    * { box-sizing: border-box; }
+
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    header {
+      background: var(--navy);
+      color: #fff;
+      padding: 48px 24px 40px;
+    }
+
+    .header-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+
+    header p {
+      margin: 10px 0 0;
+      font-size: 1.05rem;
+      font-weight: 400;
+      color: #c7d3df;
+      max-width: 620px;
+    }
+
+    /* Main */
+    main {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    .toolbar {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 28px;
+    }
+
+    .btn-example {
+      appearance: none;
+      border: 1px solid var(--teal);
+      background: var(--teal);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 11px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+
+    .btn-example:hover { background: #238578; }
+    .btn-example:active { transform: translateY(1px); }
+    .btn-example.is-clear {
+      background: #fff;
+      color: var(--navy);
+      border-color: var(--border);
+    }
+    .btn-example.is-clear:hover { background: #f0f3f7; }
+
+    /* Tombol primer (navy) dan sekunder (outline) */
+    .btn-primary {
+      appearance: none;
+      border: 1px solid var(--navy);
+      background: var(--navy);
+      color: #fff;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 11px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+    .btn-primary:hover { background: #0f2740; }
+    .btn-primary:active { transform: translateY(1px); }
+
+    .btn-secondary {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 11px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+    .btn-secondary:hover { background: #f0f3f7; }
+    .btn-secondary:active { transform: translateY(1px); }
+
+    /* Panel prompt hasil rangkaian */
+    .prompt-panel {
+      margin-top: 28px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 22px 24px;
+    }
+    .prompt-panel[hidden] { display: none; }
+
+    .prompt-panel-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+    }
+    .prompt-panel-head h3 {
+      margin: 0;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .prompt-output {
+      width: 100%;
+      min-height: 300px;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 0.9rem;
+      line-height: 1.55;
+      color: var(--text);
+      background: #fcfdfe;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 14px 15px;
+      white-space: pre-wrap;
+    }
+    .prompt-output:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15);
+    }
+
+    /* Notifikasi singkat */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--navy);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 6px 24px rgba(20, 48, 79, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 50;
+    }
+    .toast.show {
+      opacity: 1;
+      transform: translateX(-50%) translateY(0);
+    }
+
+    /* Panel skor kesiapan */
+    .score-panel {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 18px 24px;
+      margin-bottom: 28px;
+    }
+
+    .score-ring {
+      --pct: 0;
+      --ring-color: #c0564f;
+      width: 86px;
+      height: 86px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: conic-gradient(var(--ring-color) calc(var(--pct) * 1%), #e9eef3 0);
+      display: grid;
+      place-items: center;
+      transition: background 0.3s ease;
+    }
+
+    .score-ring-inner {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: var(--card);
+      display: grid;
+      place-items: center;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .score-meta { min-width: 0; }
+
+    .score-label {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+
+    .score-sub {
+      margin-top: 3px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* Penanda status per blok */
+    .status-badge {
+      align-self: flex-end;
+      margin-top: 12px;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      padding: 4px 11px;
+      border-radius: 999px;
+      line-height: 1;
+    }
+
+    .status-badge::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    .status-badge.s-empty { color: #c0564f; background: #fbeae8; }
+    .status-badge.s-short { color: #b07d1d; background: #fbf1dc; }
+    .status-badge.s-ok { color: #1f7a6b; background: var(--teal-soft); }
+
+    /* Canvas: empat fase berdampingan sebagai kolom */
+    .canvas {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      align-items: start;
+    }
+
+    .phase {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .phase-head {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin: 0 0 14px;
+      flex-wrap: wrap;
+    }
+
+    .phase-number {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 30px;
+      height: 30px;
+      padding: 0 8px;
+      background: var(--teal-soft);
+      color: var(--teal);
+      font-size: 0.85rem;
+      font-weight: 700;
+      border-radius: 8px;
+      letter-spacing: 0.02em;
+    }
+
+    .phase-title {
+      margin: 0;
+      font-size: 1.2rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .grid {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 20px 20px 18px;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .card label {
+      font-size: 1rem;
+      font-weight: 600;
+      color: var(--navy);
+    }
+
+    .card .guide {
+      margin: 6px 0 14px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+
+    .card textarea {
+      font-family: inherit;
+      font-size: 0.95rem;
+      color: var(--text);
+      width: 100%;
+      min-height: 110px;
+      resize: vertical;
+      padding: 12px 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfdfe;
+      transition: border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+
+    .card textarea:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15);
+    }
+
+    /* Highlighted main block */
+    .card.is-highlight {
+      border: 2px solid var(--teal);
+      background: linear-gradient(180deg, var(--teal-soft) 0%, #ffffff 70%);
+    }
+
+    .card.is-highlight .badge {
+      display: inline-block;
+      align-self: flex-start;
+      background: var(--teal);
+      color: #fff;
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      padding: 4px 10px;
+      border-radius: 999px;
+      margin-bottom: 10px;
+    }
+
+    .card.is-highlight textarea {
+      min-height: 140px;
+      background: #ffffff;
+    }
+
+    /* Responsive */
+    @media (max-width: 1080px) {
+      .canvas { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 600px) {
+      header { padding: 36px 20px 30px; }
+      header h1 { font-size: 1.6rem; }
+      main { padding: 24px 18px 48px; }
+      .canvas { grid-template-columns: 1fr; }
+      .toolbar { justify-content: stretch; }
+      .btn-example { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <h1>Kanvas Inovasi Probis</h1>
+      <p>Rancang ide inovasi Anda, satu blok demi satu blok</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="toolbar">
+      <button type="button" class="btn-example" id="exampleBtn">Lihat Contoh: Papan Tim Kerja</button>
+      <button type="button" class="btn-secondary" id="downloadBtn">Unduh</button>
+      <button type="button" class="btn-primary" id="assembleBtn">Rangkai Prompt</button>
+    </div>
+
+    <div class="score-panel">
+      <div class="score-ring" id="scoreRing">
+        <div class="score-ring-inner"><span id="scoreValue">0%</span></div>
+      </div>
+      <div class="score-meta">
+        <div class="score-label" id="scoreLabel">Baru mulai</div>
+        <div class="score-sub">Skor kesiapan dihitung otomatis dari isi kesembilan blok.</div>
+      </div>
+    </div>
+
+    <div class="canvas">
+    <!-- Fase 1 -->
+    <section class="phase">
+      <div class="phase-head">
+        <span class="phase-number">Fase 1</span>
+        <h2 class="phase-title">Pahami</h2>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <label for="f1a">Proses yang dipilih</label>
+          <p class="guide">Proses kerja apa yang ingin Anda perbaiki?</p>
+          <textarea id="f1a" data-key="proses"></textarea>
+        </div>
+        <div class="card">
+          <label for="f1b">Pengguna dan kebutuhannya</label>
+          <p class="guide">Siapa yang memakai proses ini dan apa yang mereka butuhkan?</p>
+          <textarea id="f1b" data-key="pengguna"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fase 2 -->
+    <section class="phase">
+      <div class="phase-head">
+        <span class="phase-number">Fase 2</span>
+        <h2 class="phase-title">Definisikan</h2>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <label for="f2a">Titik nyeri</label>
+          <p class="guide">Di mana proses ini terasa paling menyakitkan atau lambat?</p>
+          <textarea id="f2a" data-key="nyeri"></textarea>
+        </div>
+        <div class="card">
+          <label for="f2b">Akar masalah</label>
+          <p class="guide">Apa penyebab mendasar di balik titik nyeri itu?</p>
+          <textarea id="f2b" data-key="akar"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fase 3 -->
+    <section class="phase">
+      <div class="phase-head">
+        <span class="phase-number">Fase 3</span>
+        <h2 class="phase-title">Rancang</h2>
+      </div>
+      <div class="grid">
+        <div class="card is-highlight">
+          <span class="badge">Blok Utama</span>
+          <label for="f3a">Ide desain ulang</label>
+          <p class="guide">Bagaimana proses ini bisa dirancang ulang?</p>
+          <textarea id="f3a" data-key="ide"></textarea>
+        </div>
+        <div class="card">
+          <label for="f3b">Nilai tambah</label>
+          <p class="guide">Apa manfaat nyata yang dihasilkan?</p>
+          <textarea id="f3b" data-key="nilai"></textarea>
+        </div>
+      </div>
+    </section>
+
+    <!-- Fase 4 -->
+    <section class="phase">
+      <div class="phase-head">
+        <span class="phase-number">Fase 4</span>
+        <h2 class="phase-title">Uji dan Daftarkan</h2>
+      </div>
+      <div class="grid">
+        <div class="card">
+          <label for="f4a">Sumber daya dan mitra</label>
+          <p class="guide">Siapa dan apa yang dibutuhkan untuk mewujudkannya?</p>
+          <textarea id="f4a" data-key="sumberdaya"></textarea>
+        </div>
+        <div class="card">
+          <label for="f4b">Uji coba cepat</label>
+          <p class="guide">Bagaimana cara menguji ide ini dalam skala kecil?</p>
+          <textarea id="f4b" data-key="uji"></textarea>
+        </div>
+        <div class="card">
+          <label for="f4c">Indikator keberhasilan</label>
+          <p class="guide">Dari mana Anda tahu ide ini berhasil?</p>
+          <textarea id="f4c" data-key="indikator"></textarea>
+        </div>
+      </div>
+    </section>
+    </div>
+
+    <div class="prompt-panel" id="promptPanel" hidden>
+      <div class="prompt-panel-head">
+        <h3>Prompt siap tempel ke Claude</h3>
+        <button type="button" class="btn-primary" id="copyBtn">Salin Prompt</button>
+      </div>
+      <textarea class="prompt-output" id="promptOutput" readonly></textarea>
+    </div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      var contoh = {
+        proses: "Distribusi dan pemantauan beban kerja Tim Kerja pasca-KEP-5.",
+        pengguna: "Ketua tim dan pimpinan unit, butuh melihat siapa mengerjakan apa dan siapa yang kelebihan beban.",
+        nyeri: "Penugasan menumpuk di orang yang sama, sebagian pegawai menganggur, ketua tim sulit memantau, rawan melewati batas penugasan maksimal.",
+        akar: "Distribusi tugas dilakukan manual lewat percakapan, tidak ada gambaran beban yang menyeluruh.",
+        ide: "Papan tugas digital yang menampilkan penugasan tiap anggota dan menandai siapa yang melewati batas penugasan maksimal.",
+        nilai: "Beban kerja lebih merata, memenuhi aturan KEP-5 tentang pemerataan beban, dan transparan bagi semua anggota.",
+        sumberdaya: "Subunit Pengelola Program di unit, serta data rencana kerja Tim Kerja.",
+        uji: "Satu Kanwil, satu periode triwulan, mulai dari tim yang sudah ada.",
+        indikator: "Ketimpangan beban menurun, tidak ada anggota yang melewati batas maksimal, ketua tim lebih hemat waktu memantau."
+      };
+
+      var btn = document.getElementById("exampleBtn");
+      var areas = document.querySelectorAll("textarea[data-key]");
+      var terisi = false;
+
+      var MIN_CUKUP = 20;          // ambang panjang teks yang dianggap cukup
+      var BOBOT_UTAMA = 2;         // bobot ganda untuk blok "Ide desain ulang"
+      var STORAGE_KEY = "kanvasInovasiProbis";
+
+      var ring = document.getElementById("scoreRing");
+      var scoreValue = document.getElementById("scoreValue");
+      var scoreLabel = document.getElementById("scoreLabel");
+
+      var assembleBtn = document.getElementById("assembleBtn");
+      var downloadBtn = document.getElementById("downloadBtn");
+      var copyBtn = document.getElementById("copyBtn");
+      var promptPanel = document.getElementById("promptPanel");
+      var promptOutput = document.getElementById("promptOutput");
+      var toast = document.getElementById("toast");
+
+      // Daftar blok berurutan: kunci, label, dan fase
+      var BLOK = [
+        { key: "proses", label: "Proses yang dipilih", fase: "PAHAMI" },
+        { key: "pengguna", label: "Pengguna dan kebutuhannya", fase: "PAHAMI" },
+        { key: "nyeri", label: "Titik nyeri", fase: "DEFINISIKAN" },
+        { key: "akar", label: "Akar masalah", fase: "DEFINISIKAN" },
+        { key: "ide", label: "Ide desain ulang", fase: "RANCANG" },
+        { key: "nilai", label: "Nilai tambah", fase: "RANCANG" },
+        { key: "sumberdaya", label: "Sumber daya dan mitra", fase: "UJI DAN DAFTARKAN" },
+        { key: "uji", label: "Uji coba cepat", fase: "UJI DAN DAFTARKAN" },
+        { key: "indikator", label: "Indikator keberhasilan", fase: "UJI DAN DAFTARKAN" }
+      ];
+
+      // Pemetaan kunci ke elemen textarea
+      var byKey = {};
+      areas.forEach(function (a) { byKey[a.getAttribute("data-key")] = a; });
+
+      function isiBlok(key) {
+        var v = byKey[key] ? byKey[key].value.trim() : "";
+        return v === "" ? "(belum diisi)" : v;
+      }
+
+      // Sematkan penanda status di pojok bawah tiap kotak
+      var badges = {};
+      areas.forEach(function (a) {
+        var b = document.createElement("span");
+        b.className = "status-badge";
+        a.parentElement.appendChild(b);
+        badges[a.getAttribute("data-key")] = b;
+      });
+
+      // Nilai satu blok dari panjang isinya: 0, 0.5, atau 1
+      function nilaiBlok(panjang) {
+        if (panjang === 0) return 0;
+        if (panjang < MIN_CUKUP) return 0.5;
+        return 1;
+      }
+
+      function setBadge(b, panjang) {
+        if (panjang === 0) {
+          b.className = "status-badge s-empty";
+          b.textContent = "Kosong";
+        } else if (panjang < MIN_CUKUP) {
+          b.className = "status-badge s-short";
+          b.textContent = "Perlu diperdalam";
+        } else {
+          b.className = "status-badge s-ok";
+          b.textContent = "Cukup";
+        }
+      }
+
+      function tingkat(pct) {
+        if (pct < 40) return { label: "Baru mulai", color: "#c0564f" };
+        if (pct < 70) return { label: "Sedang dirancang", color: "#e0a32e" };
+        if (pct < 90) return { label: "Hampir siap", color: "#2A9D8F" };
+        return { label: "Siap dirangkai jadi prompt", color: "#2e9c6d" };
+      }
+
+      function perbarui() {
+        var didapat = 0;
+        var maksimal = 0;
+
+        areas.forEach(function (a) {
+          var key = a.getAttribute("data-key");
+          var panjang = a.value.trim().length;
+          var bobot = key === "ide" ? BOBOT_UTAMA : 1;
+
+          didapat += nilaiBlok(panjang) * bobot;
+          maksimal += bobot;
+          setBadge(badges[key], panjang);
+        });
+
+        var pct = maksimal === 0 ? 0 : Math.round((didapat / maksimal) * 100);
+        var t = tingkat(pct);
+
+        scoreValue.textContent = pct + "%";
+        scoreLabel.textContent = t.label;
+        ring.style.setProperty("--pct", pct);
+        ring.style.setProperty("--ring-color", t.color);
+      }
+
+      // Susun prompt siap tempel ke Claude
+      function rangkaiPrompt() {
+        var p = "";
+        p += "Saya sedang merancang ide inovasi untuk memperbaiki proses kerja. Berikut rancangan saya dalam sembilan dimensi:\n\n";
+        p += "PAHAMI\n";
+        p += "- Proses yang dipilih: " + isiBlok("proses") + "\n";
+        p += "- Pengguna dan kebutuhannya: " + isiBlok("pengguna") + "\n\n";
+        p += "DEFINISIKAN\n";
+        p += "- Titik nyeri: " + isiBlok("nyeri") + "\n";
+        p += "- Akar masalah: " + isiBlok("akar") + "\n\n";
+        p += "RANCANG\n";
+        p += "- Ide desain ulang: " + isiBlok("ide") + "\n";
+        p += "- Nilai tambah: " + isiBlok("nilai") + "\n\n";
+        p += "UJI DAN DAFTARKAN\n";
+        p += "- Sumber daya dan mitra: " + isiBlok("sumberdaya") + "\n";
+        p += "- Uji coba cepat: " + isiBlok("uji") + "\n";
+        p += "- Indikator keberhasilan: " + isiBlok("indikator") + "\n\n";
+        p += "Tolong lakukan tiga hal. Pertama, review ide ini secara kritis, sebutkan kekuatannya dan bagian yang masih lemah atau belum jelas. Kedua, beri saran perbaikan yang konkret. Ketiga, buatkan prototipe sederhana berupa satu halaman HTML yang menggambarkan ide desain ulang ini agar saya bisa melihat wujudnya.\n\n";
+        p += "Catatan: gunakan hanya data ilustratif. Jika ide ini menyentuh proses persetujuan yang berdampak keuangan atau kepegawaian, fokuskan inovasi untuk mendukung dan mempercepat, bukan menggantikan persetujuannya.";
+        return p;
+      }
+
+      // Susun teks kanvas untuk diunduh
+      function rangkaiTeks() {
+        var out = "KANVAS INOVASI PROBIS\n\n";
+        var faseAktif = "";
+        BLOK.forEach(function (b) {
+          if (b.fase !== faseAktif) {
+            out += (faseAktif === "" ? "" : "\n") + b.fase + "\n";
+            faseAktif = b.fase;
+          }
+          out += b.label + ": " + isiBlok(b.key) + "\n";
+        });
+        return out;
+      }
+
+      var toastTimer;
+      function tampilToast(pesan) {
+        toast.textContent = pesan;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 1800);
+      }
+
+      function salinKlip(teks) {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(teks).then(
+            function () { tampilToast("Tersalin"); },
+            function () { salinCadangan(); }
+          );
+        } else {
+          salinCadangan();
+        }
+      }
+      function salinCadangan() {
+        promptOutput.removeAttribute("readonly");
+        promptOutput.select();
+        try { document.execCommand("copy"); tampilToast("Tersalin"); } catch (e) {}
+        promptOutput.setAttribute("readonly", "");
+        window.getSelection().removeAllRanges();
+      }
+
+      // Simpan otomatis ke localStorage
+      function simpan() {
+        var data = {};
+        areas.forEach(function (a) { data[a.getAttribute("data-key")] = a.value; });
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch (e) {}
+      }
+      function muat() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (!raw) return;
+          var data = JSON.parse(raw);
+          areas.forEach(function (a) {
+            var k = a.getAttribute("data-key");
+            if (data.hasOwnProperty(k)) a.value = data[k];
+          });
+        } catch (e) {}
+      }
+      function hapusSimpanan() {
+        try { localStorage.removeItem(STORAGE_KEY); } catch (e) {}
+      }
+
+      function isiContoh() {
+        areas.forEach(function (a) {
+          var k = a.getAttribute("data-key");
+          if (contoh.hasOwnProperty(k)) a.value = contoh[k];
+        });
+        btn.textContent = "Kosongkan";
+        btn.classList.add("is-clear");
+        terisi = true;
+        perbarui();
+        simpan();
+      }
+
+      function kosongkan() {
+        areas.forEach(function (a) { a.value = ""; });
+        btn.textContent = "Lihat Contoh: Papan Tim Kerja";
+        btn.classList.remove("is-clear");
+        terisi = false;
+        promptPanel.setAttribute("hidden", "");
+        perbarui();
+        hapusSimpanan();
+      }
+
+      btn.addEventListener("click", function () {
+        if (terisi) kosongkan(); else isiContoh();
+      });
+
+      assembleBtn.addEventListener("click", function () {
+        promptOutput.value = rangkaiPrompt();
+        promptPanel.removeAttribute("hidden");
+        promptPanel.scrollIntoView({ behavior: "smooth", block: "nearest" });
+      });
+
+      copyBtn.addEventListener("click", function () {
+        salinKlip(promptOutput.value);
+      });
+
+      downloadBtn.addEventListener("click", function () {
+        var blob = new Blob([rangkaiTeks()], { type: "text/plain;charset=utf-8" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "kanvas-inovasi-probis.txt";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      });
+
+      areas.forEach(function (a) {
+        a.addEventListener("input", function () {
+          perbarui();
+          simpan();
+        });
+      });
+
+      muat();
+      perbarui();
+    })();
+  </script>
+</body>
+</html>
