@@ -138,6 +138,26 @@
     .btn-secondary:hover { background: #f0f3f7; }
     .btn-secondary:active { transform: translateY(1px); }
 
+    /* Baris sumber data */
+    .source-note {
+      font-size: 0.85rem;
+      color: var(--muted);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .source-note::before {
+      content: "";
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--teal);
+      flex-shrink: 0;
+    }
+    .source-note.local::before { background: #c7d0da; }
+
     /* Ringkasan statistik */
     .stats {
       display: grid;
@@ -397,6 +417,8 @@
   </header>
 
   <main>
+    <div class="source-note" id="sourceNote"></div>
+
     <div class="stats">
       <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Peserta</div></div>
       <div class="stat"><div class="stat-val" id="statAvg">0%</div><div class="stat-lbl">Rata-rata kesiapan</div></div>
@@ -418,6 +440,7 @@
     <div class="list-toolbar">
       <h2>Daftar peserta</h2>
       <div class="list-actions">
+        <button type="button" class="btn-secondary" id="refreshBtn">Segarkan</button>
         <button type="button" class="btn-secondary" id="csvBtn">Unduh CSV</button>
         <button type="button" class="btn-secondary" id="clearBtn">Kosongkan Daftar</button>
       </div>
@@ -430,9 +453,17 @@
 
   <script>
     (function () {
+      // ====== PENGATURAN ======
+      // Tempel URL Web App Google Apps Script yang SAMA dengan di index.html
+      // agar Cek Hasil membaca dari Google Sheet Anda (lintas perangkat).
+      // Bila kosong, Cek Hasil membaca dari penyimpanan browser ini saja.
+      var SHEET_URL = "";
+      // =========================
+
       var MIN_CUKUP = 20;
       var BOBOT_UTAMA = 2;
       var STORAGE_KEY = "kanvasDashboard";
+      var jsonpId = 0;
 
       var BLOK = [
         { key: "proses", label: "Proses yang dipilih", fase: "PAHAMI" },
@@ -457,14 +488,6 @@
       var statPerhatian = document.getElementById("statPerhatian");
 
       var daftar = [];   // { nama, ts, blok }
-
-      // Decode base64 UTF-8
-      function decodeB64(b64) {
-        var bin = atob(b64);
-        var bytes = new Uint8Array(bin.length);
-        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
-        return new TextDecoder().decode(bytes);
-      }
 
       function nilaiBlok(panjang) {
         if (panjang === 0) return 0;
@@ -514,49 +537,37 @@
         toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 1800);
       }
 
-      // Simpan dan muat daftar dashboard
+      // Simpan daftar ke penyimpanan browser (dipakai pada mode lokal)
       function simpan() {
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(daftar)); } catch (e) {}
       }
-      function muat() {
+
+      function muatLokal() {
         try {
           var raw = localStorage.getItem(STORAGE_KEY);
-          if (raw) daftar = JSON.parse(raw) || [];
+          daftar = raw ? (JSON.parse(raw) || []) : [];
         } catch (e) { daftar = []; }
+        render();
       }
 
-      // Ambil kode dari sepotong teks: tautan ber-#data= atau kode mentah
-      function ambilKode(teks) {
-        teks = teks.trim();
-        if (teks === "") return null;
-        var idx = teks.indexOf("data=");
-        if (idx !== -1) teks = teks.slice(idx + 5);
-        try { teks = decodeURIComponent(teks); } catch (e) {}
-        return teks.trim();
-      }
-
-      // Tambahkan satu setoran dari kode, kembalikan true bila berhasil
-      function tambahKode(kode) {
-        try {
-          var payload = JSON.parse(decodeB64(kode));
-          if (!payload || !payload.blok || !payload.nama) return false;
-          var entri = {
-            nama: String(payload.nama),
-            ts: payload.ts || Date.now(),
-            blok: payload.blok
-          };
-          // Ganti entri lama dengan nama yang sama bila setoran ini lebih baru
-          var kunci = entri.nama.trim().toLowerCase();
-          var pos = -1;
-          for (var i = 0; i < daftar.length; i++) {
-            if (daftar[i].nama.trim().toLowerCase() === kunci) { pos = i; break; }
-          }
-          if (pos === -1) daftar.push(entri);
-          else if (entri.ts >= daftar[pos].ts) daftar[pos] = entri;
-          return true;
-        } catch (e) {
-          return false;
-        }
+      // Muat dari Google Sheet lewat JSONP agar bebas hambatan CORS
+      function muatSheet(diam) {
+        var fn = "kanvasCb_" + (jsonpId++);
+        var s = document.createElement("script");
+        window[fn] = function (data) {
+          daftar = Array.isArray(data) ? data : [];
+          try { delete window[fn]; } catch (e) { window[fn] = undefined; }
+          s.remove();
+          render();
+        };
+        s.onerror = function () {
+          try { delete window[fn]; } catch (e) { window[fn] = undefined; }
+          s.remove();
+          if (!diam) tampilToast("Gagal memuat dari Sheet, periksa URL atau koneksi");
+        };
+        s.src = SHEET_URL + (SHEET_URL.indexOf("?") > -1 ? "&" : "?") +
+          "callback=" + fn + "&t=" + Date.now();
+        document.body.appendChild(s);
       }
 
       function render() {
@@ -651,12 +662,18 @@
         lihatBtn.className = "icon-btn";
         lihatBtn.type = "button";
         lihatBtn.textContent = "Lihat";
-        var hapusBtn = document.createElement("button");
-        hapusBtn.className = "icon-btn danger";
-        hapusBtn.type = "button";
-        hapusBtn.textContent = "Hapus";
         actions.appendChild(lihatBtn);
-        actions.appendChild(hapusBtn);
+
+        // Tombol Hapus hanya untuk mode lokal; pada mode Sheet, baris dihapus
+        // langsung di Google Sheet
+        var hapusBtn = null;
+        if (!SHEET_URL) {
+          hapusBtn = document.createElement("button");
+          hapusBtn.className = "icon-btn danger";
+          hapusBtn.type = "button";
+          hapusBtn.textContent = "Hapus";
+          actions.appendChild(hapusBtn);
+        }
 
         head.appendChild(ring);
         head.appendChild(info);
@@ -691,13 +708,15 @@
           }
         });
 
-        hapusBtn.addEventListener("click", function () {
-          var kunci = d.nama.trim().toLowerCase();
-          daftar = daftar.filter(function (x) { return x.nama.trim().toLowerCase() !== kunci; });
-          simpan();
-          render();
-          tampilToast("Setoran dihapus");
-        });
+        if (hapusBtn) {
+          hapusBtn.addEventListener("click", function () {
+            var kunci = d.nama.trim().toLowerCase();
+            daftar = daftar.filter(function (x) { return x.nama.trim().toLowerCase() !== kunci; });
+            simpan();
+            render();
+            tampilToast("Setoran dihapus");
+          });
+        }
 
         card.appendChild(head);
         card.appendChild(detail);
@@ -734,37 +753,36 @@
         URL.revokeObjectURL(url);
       }
 
-      // Impor otomatis dari tautan setoran yang dibuka langsung
-      function importDariHash() {
-        var h = location.hash || "";
-        if (h.indexOf("data=") === -1) return;
-        var kode = ambilKode(h);
-        if (kode && tambahKode(kode)) {
-          simpan();
-          tampilToast("Setoran peserta masuk");
-        }
-        // Bersihkan hash agar tidak terulang saat disegarkan
-        history.replaceState(null, "", location.pathname + location.search);
-      }
+      var sourceNote = document.getElementById("sourceNote");
+      var refreshBtn = document.getElementById("refreshBtn");
 
       csvBtn.addEventListener("click", unduhCsv);
-      clearBtn.addEventListener("click", function () {
-        if (daftar.length === 0) { tampilToast("Daftar masih kosong"); return; }
-        if (!confirm("Kosongkan seluruh daftar setoran di dashboard ini?")) return;
-        daftar = [];
-        simpan();
-        render();
-        tampilToast("Daftar dikosongkan");
-      });
 
-      // Segarkan otomatis bila ada setoran baru dari tab lain di browser yang sama
-      window.addEventListener("storage", function (e) {
-        if (e.key === STORAGE_KEY) { muat(); render(); }
-      });
-
-      muat();
-      importDariHash();
-      render();
+      if (SHEET_URL) {
+        // Mode Google Sheet: lintas perangkat, menyegar berkala
+        sourceNote.textContent = "Sumber data: Google Sheet, menyegar otomatis setiap 15 detik";
+        clearBtn.style.display = "none";
+        refreshBtn.addEventListener("click", function () { muatSheet(false); });
+        muatSheet(false);
+        setInterval(function () { muatSheet(true); }, 15000);
+      } else {
+        // Mode lokal: hanya perangkat dan browser ini
+        sourceNote.className = "source-note local";
+        sourceNote.textContent = "Sumber data: penyimpanan browser ini saja. Isi SHEET_URL untuk memantau lintas perangkat.";
+        refreshBtn.addEventListener("click", muatLokal);
+        clearBtn.addEventListener("click", function () {
+          if (daftar.length === 0) { tampilToast("Daftar masih kosong"); return; }
+          if (!confirm("Kosongkan seluruh daftar di perangkat ini?")) return;
+          daftar = [];
+          simpan();
+          render();
+          tampilToast("Daftar dikosongkan");
+        });
+        window.addEventListener("storage", function (e) {
+          if (e.key === STORAGE_KEY) muatLokal();
+        });
+        muatLokal();
+      }
     })();
   </script>
 </body>

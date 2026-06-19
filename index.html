@@ -581,7 +581,7 @@
       <a class="btn-link" href="dashboard.html">Cek Hasil</a>
       <div class="toolbar-right">
         <button type="button" class="btn-example" id="exampleBtn">Lihat Contoh: Papan Tim Kerja</button>
-        <button type="button" class="btn-secondary" id="downloadBtn">Unduh</button>
+        <button type="button" class="btn-secondary" id="downloadBtn">Kirim &amp; Unduh</button>
         <button type="button" class="btn-primary" id="assembleBtn">Rangkai Prompt</button>
       </div>
     </div>
@@ -709,6 +709,14 @@
 
   <script>
     (function () {
+      // ====== PENGATURAN ======
+      // Tempel URL Web App dari Google Apps Script di antara tanda kutip agar
+      // isian peserta tersimpan ke Google Sheet Anda dan bisa dipantau lintas
+      // perangkat. Panduan ada di file google-apps-script.gs.
+      // Bila dibiarkan kosong, aplikasi tetap jalan dalam mode satu perangkat.
+      var SHEET_URL = "";
+      // =========================
+
       var contoh = {
         proses: "Distribusi dan pemantauan beban kerja Tim Kerja pasca-KEP-5.",
         pengguna: "Ketua tim dan pimpinan unit, butuh melihat siapa mengerjakan apa dan siapa yang kelebihan beban.",
@@ -861,6 +869,19 @@
         try { localStorage.setItem(DASH_KEY, JSON.stringify(daftar)); } catch (e) {}
       }
 
+      // Kirim setoran ke Google Sheet bila URL sudah diatur.
+      // Body berupa teks biasa agar tidak memicu preflight CORS.
+      function kirimKeSheet(nama, selesai) {
+        if (!SHEET_URL) { selesai(true, "lokal"); return; }
+        var blok = {};
+        areas.forEach(function (a) { blok[a.getAttribute("data-key")] = a.value.trim(); });
+        var payload = { nama: nama, ts: Date.now(), blok: blok };
+        fetch(SHEET_URL, { method: "POST", body: JSON.stringify(payload) })
+          .then(function (r) { return r.json(); })
+          .then(function (res) { selesai(!!(res && res.ok), "sheet"); })
+          .catch(function () { selesai(false, "sheet"); });
+      }
+
       // Susun prompt siap tempel ke Claude
       function rangkaiPrompt() {
         var p = "";
@@ -991,7 +1012,7 @@
           namaInput.focus();
           return;
         }
-        // Daftarkan ke halaman Cek Hasil sekaligus unduh salinan teks
+        // Simpan salinan lokal, unduh teks, lalu kirim ke Sheet bila diatur
         setorKeDashboard(nama);
         var blob = new Blob([rangkaiTeks()], { type: "text/plain;charset=utf-8" });
         var url = URL.createObjectURL(blob);
@@ -1002,7 +1023,17 @@
         a.click();
         a.remove();
         URL.revokeObjectURL(url);
-        tampilToast("Tersimpan ke Cek Hasil dan terunduh");
+
+        if (SHEET_URL) {
+          tampilToast("Mengirim ke fasilitator...");
+          kirimKeSheet(nama, function (ok) {
+            tampilToast(ok
+              ? "Terkirim ke fasilitator dan terunduh"
+              : "Terunduh. Pengiriman gagal, periksa koneksi lalu tekan lagi");
+          });
+        } else {
+          tampilToast("Tersimpan ke Cek Hasil dan terunduh");
+        }
       });
 
       namaInput.addEventListener("input", simpan);
