@@ -581,6 +581,7 @@
       <a class="btn-link" href="dashboard.html">Cek Hasil</a>
       <div class="toolbar-right">
         <button type="button" class="btn-example" id="exampleBtn">Lihat Contoh: Papan Tim Kerja</button>
+        <button type="button" class="btn-secondary" id="clearCanvasBtn">Kosongkan</button>
         <button type="button" class="btn-secondary" id="downloadBtn">Kirim &amp; Unduh</button>
         <button type="button" class="btn-primary" id="assembleBtn">Rangkai Prompt</button>
       </div>
@@ -730,8 +731,8 @@
       };
 
       var btn = document.getElementById("exampleBtn");
+      var clearCanvasBtn = document.getElementById("clearCanvasBtn");
       var areas = document.querySelectorAll("textarea[data-key]");
-      var terisi = false;
 
       var MIN_CUKUP = 20;          // ambang panjang teks yang dianggap cukup
       var BOBOT_UTAMA = 2;         // bobot ganda untuk blok "Ide desain ulang"
@@ -974,26 +975,20 @@
           var k = a.getAttribute("data-key");
           if (contoh.hasOwnProperty(k)) a.value = contoh[k];
         });
-        btn.textContent = "Kosongkan";
-        btn.classList.add("is-clear");
-        terisi = true;
         perbarui();
         simpan();
       }
 
       function kosongkan() {
         areas.forEach(function (a) { a.value = ""; });
-        btn.textContent = "Lihat Contoh: Papan Tim Kerja";
-        btn.classList.remove("is-clear");
-        terisi = false;
         promptPanel.setAttribute("hidden", "");
         perbarui();
         simpan();
+        tampilToast("Kanvas dikosongkan");
       }
 
-      btn.addEventListener("click", function () {
-        if (terisi) kosongkan(); else isiContoh();
-      });
+      btn.addEventListener("click", isiContoh);
+      clearCanvasBtn.addEventListener("click", kosongkan);
 
       assembleBtn.addEventListener("click", function () {
         promptOutput.value = rangkaiPrompt();
