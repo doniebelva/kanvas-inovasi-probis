@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Kanvas Inovasi Probis</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314304F'/%3E%3Ccircle cx='16' cy='16' r='6.5' fill='%232A9D8F'/%3E%3C/svg%3E" />
+  <meta property="og:title" content="Kanvas Inovasi Probis" />
+  <meta property="og:description" content="Rancang ide inovasi Anda, satu blok demi satu blok." />
+  <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -549,6 +553,21 @@
 
     .score-grow { flex: 1; min-width: 200px; }
 
+    /* Panel petunjuk singkat */
+    .intro {
+      background: var(--teal-soft);
+      border: 1px solid rgba(42, 157, 143, 0.3);
+      border-radius: 14px;
+      padding: 14px 20px;
+      margin-bottom: 18px;
+      font-size: 0.92rem;
+      color: #1f5e54;
+    }
+    .intro strong { color: var(--navy); }
+
+    /* Elemen yang hanya muncul saat dicetak */
+    .print-only { display: none; }
+
     /* Responsive */
     @media (max-width: 1080px) {
       .canvas { grid-template-columns: repeat(2, 1fr); }
@@ -562,6 +581,41 @@
       .toolbar { flex-direction: column; align-items: stretch; }
       .toolbar-right { flex-direction: column; }
       .btn-link, .btn-example, .btn-secondary, .btn-primary { width: 100%; justify-content: center; text-align: center; }
+    }
+
+    /* Tampilan cetak dan simpan sebagai PDF */
+    @media print {
+      header, .toolbar, .intro, .score-panel, .prompt-panel, .toast, .status-badge {
+        display: none !important;
+      }
+      body { background: #fff; color: #000; }
+      main { max-width: none; padding: 0; }
+      .print-only { display: block; }
+      .print-head { margin-bottom: 16px; }
+      .print-head h1 { margin: 0; font-size: 18pt; color: #14304F; }
+      .print-head .print-name { margin-top: 4px; font-size: 11pt; color: #333; }
+      .canvas { display: block; }
+      .phase { break-inside: avoid; margin-bottom: 14px; }
+      .phase-title { font-size: 13pt; }
+      .card {
+        box-shadow: none;
+        border: 1px solid #bbb;
+        break-inside: avoid;
+        margin-bottom: 10px;
+        padding: 12px 14px;
+      }
+      .card:hover { transform: none; box-shadow: none; }
+      .card .guide { color: #555; }
+      .card textarea {
+        border: none;
+        background: #fff;
+        color: #000;
+        resize: none;
+        font-size: 11pt;
+        padding: 4px 0 0;
+        overflow: hidden;
+        min-height: 0 !important;
+      }
     }
   </style>
 </head>
@@ -577,12 +631,22 @@
   </header>
 
   <main>
+    <div class="print-only print-head">
+      <h1>Kanvas Inovasi Probis</h1>
+      <div class="print-name" id="printName"></div>
+    </div>
+
+    <div class="intro">
+      <strong>Cara pakai.</strong> Isi nama Anda, lalu lengkapi kesembilan blok dari kiri ke kanan. Skor kesiapan terhitung otomatis. Setelah cukup, tekan Kirim &amp; Unduh untuk menyimpan salinan dan mengirim ke fasilitator. Pekerjaan Anda tersimpan otomatis di perangkat ini.
+    </div>
+
     <div class="toolbar">
       <a class="btn-link" href="dashboard.html">Cek Hasil</a>
       <div class="toolbar-right">
         <button type="button" class="btn-example" id="exampleBtn">Lihat Contoh: Papan Tim Kerja</button>
         <button type="button" class="btn-secondary" id="clearCanvasBtn">Kosongkan</button>
         <button type="button" class="btn-secondary" id="downloadBtn">Kirim &amp; Unduh</button>
+        <button type="button" class="btn-secondary" id="printBtn">Cetak / PDF</button>
         <button type="button" class="btn-primary" id="assembleBtn">Rangkai Prompt</button>
       </div>
     </div>
@@ -598,7 +662,7 @@
       </div>
       <div class="score-meta score-grow">
         <div class="score-label" id="scoreLabel">Baru mulai</div>
-        <div class="score-sub">Skor kesiapan dihitung otomatis dari isi kesembilan blok.</div>
+        <div class="score-sub"><span id="blokCount">0 dari 9 blok terisi</span> &middot; tersimpan otomatis di perangkat ini</div>
         <div class="phase-progress" id="phaseProgress">
           <span class="phase-chip" data-fase="PAHAMI"><span class="dot"></span>Pahami</span>
           <span class="phase-chip" data-fase="DEFINISIKAN"><span class="dot"></span>Definisikan</span>
@@ -741,9 +805,12 @@
       var ring = document.getElementById("scoreRing");
       var scoreValue = document.getElementById("scoreValue");
       var scoreLabel = document.getElementById("scoreLabel");
+      var blokCount = document.getElementById("blokCount");
 
       var assembleBtn = document.getElementById("assembleBtn");
       var downloadBtn = document.getElementById("downloadBtn");
+      var printBtn = document.getElementById("printBtn");
+      var printName = document.getElementById("printName");
       var copyBtn = document.getElementById("copyBtn");
       var promptPanel = document.getElementById("promptPanel");
       var promptOutput = document.getElementById("promptOutput");
@@ -821,6 +888,7 @@
       function perbarui() {
         var didapat = 0;
         var maksimal = 0;
+        var terisiN = 0;
 
         areas.forEach(function (a) {
           var key = a.getAttribute("data-key");
@@ -829,8 +897,11 @@
 
           didapat += nilaiBlok(panjang) * bobot;
           maksimal += bobot;
+          if (panjang > 0) terisiN++;
           setBadge(badges[key], panjang);
         });
+
+        blokCount.textContent = terisiN + " dari 9 blok terisi";
 
         var pct = maksimal === 0 ? 0 : Math.round((didapat / maksimal) * 100);
         var t = tingkat(pct);
@@ -1007,6 +1078,12 @@
           namaInput.focus();
           return;
         }
+        // Ingatkan bila masih ada blok kosong, tetapi tetap boleh dilanjutkan
+        var kosongN = 0;
+        areas.forEach(function (a) { if (a.value.trim() === "") kosongN++; });
+        if (kosongN > 0 && !confirm("Masih ada " + kosongN + " blok yang kosong. Tetap kirim sekarang?")) {
+          return;
+        }
         // Simpan salinan lokal, unduh teks, lalu kirim ke Sheet bila diatur
         setorKeDashboard(nama);
         var blob = new Blob([rangkaiTeks()], { type: "text/plain;charset=utf-8" });
@@ -1032,6 +1109,24 @@
       });
 
       namaInput.addEventListener("input", simpan);
+
+      // Cetak atau simpan PDF: rentangkan textarea agar isinya tampil utuh
+      function siapkanCetak() {
+        printName.textContent = namaInput.value.trim() ? "Peserta: " + namaInput.value.trim() : "";
+        areas.forEach(function (a) {
+          a.style.height = "auto";
+          a.style.height = a.scrollHeight + "px";
+        });
+      }
+      function bersihkanCetak() {
+        areas.forEach(function (a) { a.style.height = ""; });
+      }
+      printBtn.addEventListener("click", function () {
+        siapkanCetak();
+        window.print();
+      });
+      window.addEventListener("beforeprint", siapkanCetak);
+      window.addEventListener("afterprint", bersihkanCetak);
 
       areas.forEach(function (a) {
         a.addEventListener("input", function () {

@@ -4,6 +4,10 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Cek Hasil - Kanvas Inovasi Probis</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%2314304F'/%3E%3Ccircle cx='16' cy='16' r='6.5' fill='%232A9D8F'/%3E%3C/svg%3E" />
+  <meta property="og:title" content="Cek Hasil - Kanvas Inovasi Probis" />
+  <meta property="og:description" content="Rekap kesiapan kanvas inovasi peserta dalam satu tampilan." />
+  <meta property="og:type" content="website" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -244,6 +248,30 @@
     }
     .list-actions { display: flex; gap: 10px; flex-wrap: wrap; }
 
+    .list-controls {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .list-controls input,
+    .list-controls select {
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--text);
+      padding: 10px 13px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fff;
+    }
+    .list-controls input { flex: 1; min-width: 200px; }
+    .list-controls input:focus,
+    .list-controls select:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15);
+    }
+
     /* Daftar peserta */
     .peserta-list { display: flex; flex-direction: column; gap: 14px; }
 
@@ -417,7 +445,10 @@
   </header>
 
   <main>
-    <div class="source-note" id="sourceNote"></div>
+    <div class="source-note" id="sourceRow">
+      <span id="sourceNote"></span>
+      <span id="loadInfo"></span>
+    </div>
 
     <div class="stats">
       <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Peserta</div></div>
@@ -446,6 +477,15 @@
       </div>
     </div>
 
+    <div class="list-controls">
+      <input type="text" id="searchInput" placeholder="Cari nama peserta..." autocomplete="off" />
+      <select id="sortSelect">
+        <option value="skor">Urutkan: skor tertinggi</option>
+        <option value="waktu">Urutkan: terbaru</option>
+        <option value="nama">Urutkan: nama A sampai Z</option>
+      </select>
+    </div>
+
     <div class="peserta-list" id="pesertaList"></div>
   </main>
 
@@ -458,7 +498,30 @@
       // agar Cek Hasil membaca dari Google Sheet Anda (lintas perangkat).
       // Bila kosong, Cek Hasil membaca dari penyimpanan browser ini saja.
       var SHEET_URL = "https://script.google.com/macros/s/AKfycbwrx3Bx6p22qGLKF-uHWCbvhYba_TKm1vYvwe5PbN9SQJ9BQ613q1bc_1lr_-f7k_bdgw/exec";
+
+      // Kata sandi sederhana untuk membuka halaman ini. Bila kosong, halaman
+      // terbuka tanpa kata sandi. Isi di antara tanda kutip untuk mengaktifkan,
+      // misalnya var DASHBOARD_PIN = "probis2026";
+      var DASHBOARD_PIN = "";
       // =========================
+
+      // Gerbang kata sandi sederhana (penghalang ringan, bukan keamanan penuh)
+      if (DASHBOARD_PIN) {
+        var sudah = sessionStorage.getItem("kanvasDashAuth") === DASHBOARD_PIN;
+        if (!sudah) {
+          var coba = window.prompt("Masukkan kata sandi untuk membuka Cek Hasil:");
+          if (coba === DASHBOARD_PIN) {
+            sessionStorage.setItem("kanvasDashAuth", DASHBOARD_PIN);
+          } else {
+            document.body.innerHTML =
+              "<div style='max-width:520px;margin:80px auto;padding:32px;font-family:Inter,system-ui,sans-serif;" +
+              "text-align:center;color:#1f2d3d'>" +
+              "<h2 style='color:#14304F'>Akses ditolak</h2>" +
+              "<p style='color:#5a6b7b'>Kata sandi salah. Muat ulang halaman untuk mencoba lagi.</p></div>";
+            throw new Error("Akses ditolak");
+          }
+        }
+      }
 
       var MIN_CUKUP = 20;
       var BOBOT_UTAMA = 2;
@@ -486,8 +549,13 @@
       var statAvg = document.getElementById("statAvg");
       var statSiap = document.getElementById("statSiap");
       var statPerhatian = document.getElementById("statPerhatian");
+      var searchInput = document.getElementById("searchInput");
+      var sortSelect = document.getElementById("sortSelect");
+      var loadInfo = document.getElementById("loadInfo");
 
       var daftar = [];   // { nama, ts, blok }
+      var cariTeks = "";
+      var urutMode = "skor";
 
       function nilaiBlok(panjang) {
         if (panjang === 0) return 0;
@@ -542,27 +610,37 @@
         try { localStorage.setItem(STORAGE_KEY, JSON.stringify(daftar)); } catch (e) {}
       }
 
+      function jamKini() {
+        try {
+          return new Date().toLocaleTimeString("id-ID", { hour: "2-digit", minute: "2-digit" });
+        } catch (e) { return ""; }
+      }
+
       function muatLokal() {
         try {
           var raw = localStorage.getItem(STORAGE_KEY);
           daftar = raw ? (JSON.parse(raw) || []) : [];
         } catch (e) { daftar = []; }
+        loadInfo.textContent = " diperbarui pukul " + jamKini();
         render();
       }
 
       // Muat dari Google Sheet lewat JSONP agar bebas hambatan CORS
       function muatSheet(diam) {
+        if (!diam) loadInfo.textContent = " memuat...";
         var fn = "kanvasCb_" + (jsonpId++);
         var s = document.createElement("script");
         window[fn] = function (data) {
           daftar = Array.isArray(data) ? data : [];
           try { delete window[fn]; } catch (e) { window[fn] = undefined; }
           s.remove();
+          loadInfo.textContent = " diperbarui pukul " + jamKini();
           render();
         };
         s.onerror = function () {
           try { delete window[fn]; } catch (e) { window[fn] = undefined; }
           s.remove();
+          loadInfo.textContent = " gagal memuat";
           if (!diam) tampilToast("Gagal memuat dari Sheet, periksa URL atau koneksi");
         };
         s.src = SHEET_URL + (SHEET_URL.indexOf("?") > -1 ? "&" : "?") +
@@ -570,13 +648,26 @@
         document.body.appendChild(s);
       }
 
+      // Rangkum jadi satu entri terbaru per nama (Sheet tetap menyimpan riwayat)
+      function dedupPerNama(arr) {
+        var peta = {};
+        arr.forEach(function (d) {
+          var k = (d.nama || "").trim().toLowerCase();
+          if (k === "") return;
+          if (!peta[k] || (d.ts || 0) >= (peta[k].ts || 0)) peta[k] = d;
+        });
+        var keluar = [];
+        for (var k in peta) if (peta.hasOwnProperty(k)) keluar.push(peta[k]);
+        return keluar;
+      }
+
       function render() {
-        // Statistik
-        var total = daftar.length;
+        var peserta = dedupPerNama(daftar);
+        var total = peserta.length;
         var hitung = { baru: 0, sedang: 0, hampir: 0, siap: 0 };
         var jumlahSkor = 0;
 
-        var terhitung = daftar.map(function (d) {
+        var terhitung = peserta.map(function (d) {
           var pct = hitungSkor(d.blok);
           var t = tingkat(pct);
           hitung[t.key]++;
@@ -608,19 +699,40 @@
           });
         }
 
-        // Daftar peserta, urut dari skor tertinggi
-        terhitung.sort(function (a, b) { return b.pct - a.pct; });
+        // Saring berdasarkan pencarian nama
+        var tampil = terhitung;
+        var cari = cariTeks.trim().toLowerCase();
+        if (cari) {
+          tampil = tampil.filter(function (row) {
+            return row.d.nama.toLowerCase().indexOf(cari) !== -1;
+          });
+        }
+
+        // Urutkan sesuai pilihan
+        tampil.sort(function (a, b) {
+          if (urutMode === "waktu") return (b.d.ts || 0) - (a.d.ts || 0);
+          if (urutMode === "nama") return a.d.nama.localeCompare(b.d.nama, "id");
+          return b.pct - a.pct;
+        });
 
         pesertaList.innerHTML = "";
         if (total === 0) {
           var kosong = document.createElement("div");
           kosong.className = "empty";
-          kosong.innerHTML = "<strong>Belum ada hasil</strong>Isi kanvas lalu tekan tombol Unduh di halaman kanvas pada browser ini. Hasilnya otomatis muncul di sini.";
+          kosong.innerHTML = "<strong>Belum ada hasil</strong>Minta peserta mengisi kanvas lalu menekan Kirim & Unduh. Hasilnya muncul di sini.";
           pesertaList.appendChild(kosong);
           return;
         }
+        if (tampil.length === 0) {
+          var nihil = document.createElement("div");
+          nihil.className = "empty";
+          nihil.appendChild(document.createElement("strong")).textContent = "Tidak ada yang cocok";
+          nihil.appendChild(document.createTextNode("Tidak ada peserta dengan nama yang mengandung \"" + cariTeks + "\"."));
+          pesertaList.appendChild(nihil);
+          return;
+        }
 
-        terhitung.forEach(function (row) {
+        tampil.forEach(function (row) {
           pesertaList.appendChild(buatKartu(row));
         });
       }
@@ -729,12 +841,13 @@
         return '"' + v.replace(/"/g, '""') + '"';
       }
       function unduhCsv() {
-        if (daftar.length === 0) { tampilToast("Daftar masih kosong"); return; }
+        var peserta = dedupPerNama(daftar);
+        if (peserta.length === 0) { tampilToast("Daftar masih kosong"); return; }
         var header = ["Nama", "Waktu", "Skor (%)", "Tingkat", "Blok terisi"];
         BLOK.forEach(function (b) { header.push(b.label); });
         var baris = [header.map(csvEscape).join(",")];
 
-        daftar.forEach(function (d) {
+        peserta.forEach(function (d) {
           var pct = hitungSkor(d.blok);
           var row = [d.nama, waktuTeks(d.ts), pct, tingkat(pct).label, jumlahTerisi(d.blok) + "/9"];
           BLOK.forEach(function (b) { row.push((d.blok[b.key] || "").trim()); });
@@ -753,10 +866,13 @@
         URL.revokeObjectURL(url);
       }
 
+      var sourceRow = document.getElementById("sourceRow");
       var sourceNote = document.getElementById("sourceNote");
       var refreshBtn = document.getElementById("refreshBtn");
 
       csvBtn.addEventListener("click", unduhCsv);
+      searchInput.addEventListener("input", function () { cariTeks = searchInput.value; render(); });
+      sortSelect.addEventListener("change", function () { urutMode = sortSelect.value; render(); });
 
       if (SHEET_URL) {
         // Mode Google Sheet: lintas perangkat, menyegar berkala
@@ -767,7 +883,7 @@
         setInterval(function () { muatSheet(true); }, 15000);
       } else {
         // Mode lokal: hanya perangkat dan browser ini
-        sourceNote.className = "source-note local";
+        sourceRow.classList.add("local");
         sourceNote.textContent = "Sumber data: penyimpanan browser ini saja. Isi SHEET_URL untuk memantau lintas perangkat.";
         refreshBtn.addEventListener("click", muatLokal);
         clearBtn.addEventListener("click", function () {
