@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard Monitoring - Kanvas Inovasi Probis</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --navy: #14304F;
+      --teal: #2A9D8F;
+      --teal-soft: #e6f4f1;
+      --bg: #F7F9FB;
+      --card: #ffffff;
+      --text: #1f2d3d;
+      --muted: #5a6b7b;
+      --border: #e3e8ee;
+      --shadow: 0 1px 3px rgba(20, 48, 79, 0.06), 0 6px 20px rgba(20, 48, 79, 0.06);
+      --c-baru: #c0564f;
+      --c-sedang: #e0a32e;
+      --c-hampir: #2A9D8F;
+      --c-siap: #2e9c6d;
+    }
+
+    * { box-sizing: border-box; }
+    html, body { margin: 0; padding: 0; }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    header {
+      background: linear-gradient(135deg, #122b48 0%, #1d4366 55%, #226079 100%);
+      color: #fff;
+      padding: 30px 24px 40px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::after {
+      content: "";
+      position: absolute;
+      right: -80px;
+      top: -80px;
+      width: 320px;
+      height: 320px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(42, 157, 143, 0.28) 0%, rgba(42, 157, 143, 0) 70%);
+      pointer-events: none;
+    }
+    .header-inner {
+      max-width: 1320px;
+      margin: 0 auto;
+      position: relative;
+      z-index: 1;
+    }
+    .header-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 22px;
+    }
+    .header-kicker {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: #bfe3dc;
+    }
+    .header-kicker::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--teal);
+      box-shadow: 0 0 0 4px rgba(42, 157, 143, 0.25);
+    }
+    .header-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: #fff;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      padding: 9px 16px;
+      border-radius: 9px;
+      transition: background 0.15s ease;
+    }
+    .header-link:hover { background: rgba(255, 255, 255, 0.2); }
+    header h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.01em;
+    }
+    header p {
+      margin: 10px 0 0;
+      font-size: 1.05rem;
+      color: #c7d3df;
+      max-width: 640px;
+    }
+
+    main {
+      max-width: 1320px;
+      margin: 0 auto;
+      padding: 32px 24px 64px;
+    }
+
+    /* Tombol */
+    .btn-primary, .btn-secondary {
+      appearance: none;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: 600;
+      padding: 11px 20px;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: background 0.15s ease, transform 0.05s ease;
+    }
+    .btn-primary { border: 1px solid var(--navy); background: var(--navy); color: #fff; }
+    .btn-primary:hover { background: #0f2740; }
+    .btn-primary:active { transform: translateY(1px); }
+    .btn-secondary { border: 1px solid var(--border); background: #fff; color: var(--navy); }
+    .btn-secondary:hover { background: #f0f3f7; }
+    .btn-secondary:active { transform: translateY(1px); }
+
+    /* Kartu masukan setoran */
+    .input-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 22px 24px;
+      margin-bottom: 24px;
+    }
+    .input-card h2 {
+      margin: 0 0 6px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .input-card p {
+      margin: 0 0 14px;
+      font-size: 0.9rem;
+      color: var(--muted);
+    }
+    .input-card textarea {
+      width: 100%;
+      min-height: 90px;
+      resize: vertical;
+      font-family: inherit;
+      font-size: 0.9rem;
+      color: var(--text);
+      padding: 12px 14px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: #fcfdfe;
+      margin-bottom: 12px;
+    }
+    .input-card textarea:focus {
+      outline: none;
+      border-color: var(--teal);
+      box-shadow: 0 0 0 3px rgba(42, 157, 143, 0.15);
+    }
+
+    /* Ringkasan statistik */
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .stat {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+    }
+    .stat .stat-val {
+      font-size: 1.9rem;
+      font-weight: 700;
+      color: var(--navy);
+      line-height: 1.1;
+    }
+    .stat .stat-lbl {
+      margin-top: 4px;
+      font-size: 0.85rem;
+      color: var(--muted);
+    }
+
+    /* Bar distribusi tingkat */
+    .dist-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 18px 22px;
+      margin-bottom: 24px;
+    }
+    .dist-title {
+      font-size: 0.9rem;
+      font-weight: 600;
+      color: var(--navy);
+      margin-bottom: 12px;
+    }
+    .dist-bar {
+      display: flex;
+      height: 16px;
+      border-radius: 999px;
+      overflow: hidden;
+      background: #eef2f6;
+    }
+    .dist-seg { height: 100%; transition: width 0.3s ease; }
+    .dist-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      margin-top: 12px;
+    }
+    .dist-legend span {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 0.82rem;
+      color: var(--muted);
+    }
+    .dist-legend i {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    /* Toolbar daftar */
+    .list-toolbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+    }
+    .list-toolbar h2 {
+      margin: 0;
+      font-size: 1.15rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .list-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    /* Daftar peserta */
+    .peserta-list { display: flex; flex-direction: column; gap: 14px; }
+
+    .peserta {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow);
+      padding: 18px 20px;
+    }
+    .peserta-head {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .mini-ring {
+      --pct: 0;
+      --ring-color: var(--c-baru);
+      width: 58px;
+      height: 58px;
+      flex-shrink: 0;
+      border-radius: 50%;
+      background: conic-gradient(var(--ring-color) calc(var(--pct) * 1%), #e9eef3 0);
+      display: grid;
+      place-items: center;
+    }
+    .mini-ring span {
+      width: 42px;
+      height: 42px;
+      border-radius: 50%;
+      background: var(--card);
+      display: grid;
+      place-items: center;
+      font-size: 0.82rem;
+      font-weight: 700;
+      color: var(--navy);
+    }
+    .peserta-info { flex: 1; min-width: 0; }
+    .peserta-nama {
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: var(--navy);
+      word-break: break-word;
+    }
+    .peserta-sub {
+      margin-top: 3px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .level-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 4px 11px;
+      border-radius: 999px;
+      white-space: nowrap;
+    }
+    .level-chip::before {
+      content: "";
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .lv-baru { color: var(--c-baru); background: #fbeae8; }
+    .lv-sedang { color: #b07d1d; background: #fbf1dc; }
+    .lv-hampir { color: #1f7a6b; background: var(--teal-soft); }
+    .lv-siap { color: #1d7a52; background: #e4f6ec; }
+
+    .peserta-actions { display: flex; gap: 8px; align-items: center; }
+    .icon-btn {
+      appearance: none;
+      border: 1px solid var(--border);
+      background: #fff;
+      color: var(--navy);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 600;
+      padding: 7px 13px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.15s ease;
+    }
+    .icon-btn:hover { background: #f0f3f7; }
+    .icon-btn.danger { color: #c0564f; }
+    .icon-btn.danger:hover { background: #fbeae8; }
+
+    .peserta-detail {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px dashed var(--border);
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 14px;
+    }
+    .peserta-detail[hidden] { display: none; }
+    .detail-item .d-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--teal);
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .detail-item .d-value {
+      margin-top: 3px;
+      font-size: 0.9rem;
+      color: var(--text);
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+    .detail-item .d-value.kosong { color: #b0b9c4; font-style: italic; }
+
+    /* Kondisi kosong */
+    .empty {
+      background: var(--card);
+      border: 1px dashed var(--border);
+      border-radius: 14px;
+      padding: 44px 24px;
+      text-align: center;
+      color: var(--muted);
+    }
+    .empty strong { color: var(--navy); display: block; margin-bottom: 6px; font-size: 1.05rem; }
+
+    /* Notifikasi */
+    .toast {
+      position: fixed;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%) translateY(20px);
+      background: var(--navy);
+      color: #fff;
+      padding: 12px 22px;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      box-shadow: 0 6px 24px rgba(20, 48, 79, 0.25);
+      opacity: 0;
+      pointer-events: none;
+      transition: opacity 0.2s ease, transform 0.2s ease;
+      z-index: 50;
+    }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+    @media (max-width: 880px) {
+      .stats { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 600px) {
+      header { padding: 24px 18px 30px; }
+      header h1 { font-size: 1.6rem; }
+      main { padding: 24px 18px 48px; }
+      .peserta-detail { grid-template-columns: 1fr; }
+      .peserta-head { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="header-inner">
+      <div class="header-top">
+        <span class="header-kicker">Workshop Inovasi Proses Bisnis</span>
+        <a class="header-link" href="index.html">Buka Kanvas</a>
+      </div>
+      <h1>Dashboard Monitoring</h1>
+      <p>Pantau kesiapan kanvas inovasi setiap peserta dalam satu tampilan</p>
+    </div>
+  </header>
+
+  <main>
+    <div class="input-card">
+      <h2>Tambahkan setoran peserta</h2>
+      <p>Tempel satu atau beberapa tautan atau kode setoran dari peserta, satu per baris. Bila Anda membuka tautan setoran langsung, datanya otomatis masuk ke daftar.</p>
+      <textarea id="inputArea" placeholder="Tempel tautan atau kode setoran di sini, satu per baris"></textarea>
+      <button type="button" class="btn-primary" id="addBtn">Tambahkan Setoran</button>
+    </div>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="statTotal">0</div><div class="stat-lbl">Peserta</div></div>
+      <div class="stat"><div class="stat-val" id="statAvg">0%</div><div class="stat-lbl">Rata-rata kesiapan</div></div>
+      <div class="stat"><div class="stat-val" id="statSiap">0</div><div class="stat-lbl">Siap dirangkai</div></div>
+      <div class="stat"><div class="stat-val" id="statPerhatian">0</div><div class="stat-lbl">Perlu perhatian</div></div>
+    </div>
+
+    <div class="dist-card">
+      <div class="dist-title">Sebaran tingkat kesiapan</div>
+      <div class="dist-bar" id="distBar"></div>
+      <div class="dist-legend">
+        <span><i style="background:var(--c-baru)"></i>Baru mulai</span>
+        <span><i style="background:var(--c-sedang)"></i>Sedang dirancang</span>
+        <span><i style="background:var(--c-hampir)"></i>Hampir siap</span>
+        <span><i style="background:var(--c-siap)"></i>Siap dirangkai</span>
+      </div>
+    </div>
+
+    <div class="list-toolbar">
+      <h2>Daftar peserta</h2>
+      <div class="list-actions">
+        <button type="button" class="btn-secondary" id="csvBtn">Unduh CSV</button>
+        <button type="button" class="btn-secondary" id="clearBtn">Kosongkan Daftar</button>
+      </div>
+    </div>
+
+    <div class="peserta-list" id="pesertaList"></div>
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    (function () {
+      var MIN_CUKUP = 20;
+      var BOBOT_UTAMA = 2;
+      var STORAGE_KEY = "kanvasDashboard";
+
+      var BLOK = [
+        { key: "proses", label: "Proses yang dipilih", fase: "PAHAMI" },
+        { key: "pengguna", label: "Pengguna dan kebutuhannya", fase: "PAHAMI" },
+        { key: "nyeri", label: "Titik nyeri", fase: "DEFINISIKAN" },
+        { key: "akar", label: "Akar masalah", fase: "DEFINISIKAN" },
+        { key: "ide", label: "Ide desain ulang", fase: "RANCANG" },
+        { key: "nilai", label: "Nilai tambah", fase: "RANCANG" },
+        { key: "sumberdaya", label: "Sumber daya dan mitra", fase: "UJI DAN DAFTARKAN" },
+        { key: "uji", label: "Uji coba cepat", fase: "UJI DAN DAFTARKAN" },
+        { key: "indikator", label: "Indikator keberhasilan", fase: "UJI DAN DAFTARKAN" }
+      ];
+
+      var inputArea = document.getElementById("inputArea");
+      var addBtn = document.getElementById("addBtn");
+      var csvBtn = document.getElementById("csvBtn");
+      var clearBtn = document.getElementById("clearBtn");
+      var pesertaList = document.getElementById("pesertaList");
+      var distBar = document.getElementById("distBar");
+      var toast = document.getElementById("toast");
+      var statTotal = document.getElementById("statTotal");
+      var statAvg = document.getElementById("statAvg");
+      var statSiap = document.getElementById("statSiap");
+      var statPerhatian = document.getElementById("statPerhatian");
+
+      var daftar = [];   // { nama, ts, blok }
+
+      // Decode base64 UTF-8
+      function decodeB64(b64) {
+        var bin = atob(b64);
+        var bytes = new Uint8Array(bin.length);
+        for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        return new TextDecoder().decode(bytes);
+      }
+
+      function nilaiBlok(panjang) {
+        if (panjang === 0) return 0;
+        if (panjang < MIN_CUKUP) return 0.5;
+        return 1;
+      }
+
+      function hitungSkor(blok) {
+        var didapat = 0, maksimal = 0;
+        BLOK.forEach(function (b) {
+          var panjang = (blok[b.key] || "").trim().length;
+          var bobot = b.key === "ide" ? BOBOT_UTAMA : 1;
+          didapat += nilaiBlok(panjang) * bobot;
+          maksimal += bobot;
+        });
+        return maksimal === 0 ? 0 : Math.round((didapat / maksimal) * 100);
+      }
+
+      function jumlahTerisi(blok) {
+        var n = 0;
+        BLOK.forEach(function (b) {
+          if ((blok[b.key] || "").trim().length > 0) n++;
+        });
+        return n;
+      }
+
+      function tingkat(pct) {
+        if (pct < 40) return { label: "Baru mulai", cls: "lv-baru", color: "var(--c-baru)", key: "baru" };
+        if (pct < 70) return { label: "Sedang dirancang", cls: "lv-sedang", color: "var(--c-sedang)", key: "sedang" };
+        if (pct < 90) return { label: "Hampir siap", cls: "lv-hampir", color: "var(--c-hampir)", key: "hampir" };
+        return { label: "Siap dirangkai jadi prompt", cls: "lv-siap", color: "var(--c-siap)", key: "siap" };
+      }
+
+      function waktuTeks(ts) {
+        try {
+          return new Date(ts).toLocaleString("id-ID", { dateStyle: "medium", timeStyle: "short" });
+        } catch (e) {
+          return new Date(ts).toLocaleString();
+        }
+      }
+
+      var toastTimer;
+      function tampilToast(pesan) {
+        toast.textContent = pesan;
+        toast.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(function () { toast.classList.remove("show"); }, 1800);
+      }
+
+      // Simpan dan muat daftar dashboard
+      function simpan() {
+        try { localStorage.setItem(STORAGE_KEY, JSON.stringify(daftar)); } catch (e) {}
+      }
+      function muat() {
+        try {
+          var raw = localStorage.getItem(STORAGE_KEY);
+          if (raw) daftar = JSON.parse(raw) || [];
+        } catch (e) { daftar = []; }
+      }
+
+      // Ambil kode dari sepotong teks: tautan ber-#data= atau kode mentah
+      function ambilKode(teks) {
+        teks = teks.trim();
+        if (teks === "") return null;
+        var idx = teks.indexOf("data=");
+        if (idx !== -1) teks = teks.slice(idx + 5);
+        try { teks = decodeURIComponent(teks); } catch (e) {}
+        return teks.trim();
+      }
+
+      // Tambahkan satu setoran dari kode, kembalikan true bila berhasil
+      function tambahKode(kode) {
+        try {
+          var payload = JSON.parse(decodeB64(kode));
+          if (!payload || !payload.blok || !payload.nama) return false;
+          var entri = {
+            nama: String(payload.nama),
+            ts: payload.ts || Date.now(),
+            blok: payload.blok
+          };
+          // Ganti entri lama dengan nama yang sama bila setoran ini lebih baru
+          var kunci = entri.nama.trim().toLowerCase();
+          var pos = -1;
+          for (var i = 0; i < daftar.length; i++) {
+            if (daftar[i].nama.trim().toLowerCase() === kunci) { pos = i; break; }
+          }
+          if (pos === -1) daftar.push(entri);
+          else if (entri.ts >= daftar[pos].ts) daftar[pos] = entri;
+          return true;
+        } catch (e) {
+          return false;
+        }
+      }
+
+      function render() {
+        // Statistik
+        var total = daftar.length;
+        var hitung = { baru: 0, sedang: 0, hampir: 0, siap: 0 };
+        var jumlahSkor = 0;
+
+        var terhitung = daftar.map(function (d) {
+          var pct = hitungSkor(d.blok);
+          var t = tingkat(pct);
+          hitung[t.key]++;
+          jumlahSkor += pct;
+          return { d: d, pct: pct, t: t, terisi: jumlahTerisi(d.blok) };
+        });
+
+        statTotal.textContent = total;
+        statAvg.textContent = (total === 0 ? 0 : Math.round(jumlahSkor / total)) + "%";
+        statSiap.textContent = hitung.siap;
+        statPerhatian.textContent = hitung.baru;
+
+        // Bar distribusi
+        distBar.innerHTML = "";
+        if (total > 0) {
+          [
+            { k: "baru", c: "var(--c-baru)" },
+            { k: "sedang", c: "var(--c-sedang)" },
+            { k: "hampir", c: "var(--c-hampir)" },
+            { k: "siap", c: "var(--c-siap)" }
+          ].forEach(function (s) {
+            if (hitung[s.k] === 0) return;
+            var seg = document.createElement("div");
+            seg.className = "dist-seg";
+            seg.style.width = (hitung[s.k] / total * 100) + "%";
+            seg.style.background = s.c;
+            seg.title = s.k + ": " + hitung[s.k];
+            distBar.appendChild(seg);
+          });
+        }
+
+        // Daftar peserta, urut dari skor tertinggi
+        terhitung.sort(function (a, b) { return b.pct - a.pct; });
+
+        pesertaList.innerHTML = "";
+        if (total === 0) {
+          var kosong = document.createElement("div");
+          kosong.className = "empty";
+          kosong.innerHTML = "<strong>Belum ada setoran</strong>Minta peserta menekan tombol Setor ke Dashboard di halaman kanvas, lalu tempel tautan atau kodenya di atas.";
+          pesertaList.appendChild(kosong);
+          return;
+        }
+
+        terhitung.forEach(function (row) {
+          pesertaList.appendChild(buatKartu(row));
+        });
+      }
+
+      function buatKartu(row) {
+        var d = row.d;
+        var card = document.createElement("div");
+        card.className = "peserta";
+
+        var head = document.createElement("div");
+        head.className = "peserta-head";
+
+        var ring = document.createElement("div");
+        ring.className = "mini-ring";
+        ring.style.setProperty("--pct", row.pct);
+        ring.style.setProperty("--ring-color", row.t.color);
+        var ringInner = document.createElement("span");
+        ringInner.textContent = row.pct + "%";
+        ring.appendChild(ringInner);
+
+        var info = document.createElement("div");
+        info.className = "peserta-info";
+        var nama = document.createElement("div");
+        nama.className = "peserta-nama";
+        nama.textContent = d.nama;
+        var sub = document.createElement("div");
+        sub.className = "peserta-sub";
+        sub.innerHTML = "<span>" + row.terisi + "/9 blok terisi</span><span>Disetor " + waktuTeks(d.ts) + "</span>";
+        info.appendChild(nama);
+        info.appendChild(sub);
+
+        var chip = document.createElement("span");
+        chip.className = "level-chip " + row.t.cls;
+        chip.textContent = row.t.label;
+
+        var actions = document.createElement("div");
+        actions.className = "peserta-actions";
+        var lihatBtn = document.createElement("button");
+        lihatBtn.className = "icon-btn";
+        lihatBtn.type = "button";
+        lihatBtn.textContent = "Lihat";
+        var hapusBtn = document.createElement("button");
+        hapusBtn.className = "icon-btn danger";
+        hapusBtn.type = "button";
+        hapusBtn.textContent = "Hapus";
+        actions.appendChild(lihatBtn);
+        actions.appendChild(hapusBtn);
+
+        head.appendChild(ring);
+        head.appendChild(info);
+        head.appendChild(chip);
+        head.appendChild(actions);
+
+        var detail = document.createElement("div");
+        detail.className = "peserta-detail";
+        detail.setAttribute("hidden", "");
+        BLOK.forEach(function (b) {
+          var item = document.createElement("div");
+          item.className = "detail-item";
+          var dl = document.createElement("div");
+          dl.className = "d-label";
+          dl.textContent = b.label;
+          var dv = document.createElement("div");
+          var isi = (d.blok[b.key] || "").trim();
+          dv.className = "d-value" + (isi === "" ? " kosong" : "");
+          dv.textContent = isi === "" ? "(belum diisi)" : isi;
+          item.appendChild(dl);
+          item.appendChild(dv);
+          detail.appendChild(item);
+        });
+
+        lihatBtn.addEventListener("click", function () {
+          if (detail.hasAttribute("hidden")) {
+            detail.removeAttribute("hidden");
+            lihatBtn.textContent = "Tutup";
+          } else {
+            detail.setAttribute("hidden", "");
+            lihatBtn.textContent = "Lihat";
+          }
+        });
+
+        hapusBtn.addEventListener("click", function () {
+          var kunci = d.nama.trim().toLowerCase();
+          daftar = daftar.filter(function (x) { return x.nama.trim().toLowerCase() !== kunci; });
+          simpan();
+          render();
+          tampilToast("Setoran dihapus");
+        });
+
+        card.appendChild(head);
+        card.appendChild(detail);
+        return card;
+      }
+
+      function tambahDariTeks(teks) {
+        var baris = teks.split(/\r?\n/);
+        var sukses = 0, gagal = 0;
+        baris.forEach(function (b) {
+          var kode = ambilKode(b);
+          if (kode === null) return;
+          if (tambahKode(kode)) sukses++; else gagal++;
+        });
+        if (sukses > 0) { simpan(); render(); }
+        if (sukses > 0 && gagal === 0) tampilToast(sukses + " setoran ditambahkan");
+        else if (sukses > 0 && gagal > 0) tampilToast(sukses + " ditambahkan, " + gagal + " gagal dibaca");
+        else if (sukses === 0 && (gagal > 0 || teks.trim() !== "")) tampilToast("Kode tidak terbaca");
+      }
+
+      // Unduh CSV
+      function csvEscape(v) {
+        v = (v == null ? "" : String(v)).replace(/\r?\n/g, " ");
+        return '"' + v.replace(/"/g, '""') + '"';
+      }
+      function unduhCsv() {
+        if (daftar.length === 0) { tampilToast("Daftar masih kosong"); return; }
+        var header = ["Nama", "Waktu", "Skor (%)", "Tingkat", "Blok terisi"];
+        BLOK.forEach(function (b) { header.push(b.label); });
+        var baris = [header.map(csvEscape).join(",")];
+
+        daftar.forEach(function (d) {
+          var pct = hitungSkor(d.blok);
+          var row = [d.nama, waktuTeks(d.ts), pct, tingkat(pct).label, jumlahTerisi(d.blok) + "/9"];
+          BLOK.forEach(function (b) { row.push((d.blok[b.key] || "").trim()); });
+          baris.push(row.map(csvEscape).join(","));
+        });
+
+        var isi = "﻿" + baris.join("\r\n");   // BOM agar Excel membaca UTF-8
+        var blob = new Blob([isi], { type: "text/csv;charset=utf-8" });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "monitoring-kanvas-inovasi-probis.csv";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      }
+
+      // Impor otomatis dari tautan setoran yang dibuka langsung
+      function importDariHash() {
+        var h = location.hash || "";
+        if (h.indexOf("data=") === -1) return;
+        var kode = ambilKode(h);
+        if (kode && tambahKode(kode)) {
+          simpan();
+          tampilToast("Setoran peserta masuk");
+        }
+        // Bersihkan hash agar tidak terulang saat disegarkan
+        history.replaceState(null, "", location.pathname + location.search);
+      }
+
+      addBtn.addEventListener("click", function () {
+        tambahDariTeks(inputArea.value);
+        inputArea.value = "";
+      });
+      csvBtn.addEventListener("click", unduhCsv);
+      clearBtn.addEventListener("click", function () {
+        if (daftar.length === 0) { tampilToast("Daftar masih kosong"); return; }
+        if (!confirm("Kosongkan seluruh daftar setoran di dashboard ini?")) return;
+        daftar = [];
+        simpan();
+        render();
+        tampilToast("Daftar dikosongkan");
+      });
+
+      muat();
+      importDariHash();
+      render();
+    })();
+  </script>
+</body>
+</html>
